@@ -4,6 +4,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-03
+### Geändert
+- Item-Auswahl im Diagramm: Legende als Kästchen mit Rahmen und Hover, Knöpfe **All** und **None**, Rechtsklick zeigt nur dieses Item. Die Legende überlappt nicht mehr mit der Hinweiszeile.
+
 ## [1.0.3] - 2026-11-03
 ### Behoben
 - Oberfläche: Die Leiste mit Einheit, Diagrammtyp und Metrik ragte in kleinen Fenstern über den rechten Rand hinaus. Sie liegt jetzt in einer eigenen Zeile unter den Zeitbereichen; der Inhalt rückt entsprechend nach unten.

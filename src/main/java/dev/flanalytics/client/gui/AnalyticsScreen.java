@@ -202,23 +202,40 @@ public class AnalyticsScreen extends Screen {
     }
 
     private void renderCharts(GuiGraphics g, HistoryResponsePayload d, int mx, int my) {
-        int legendH = 14 * (1 + (d.items().size() - 1) / Math.max(1, (width - 24) / 150));
-        chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 10);
+        int legendH = 16 * (1 + (d.items().size() + 1) / Math.max(1, (width - 24) / 150));
+        chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 24);
         chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
         int lx = 12, ly = chart.y + chart.h + 6;
+        // "All" / "None" chips first, then one checkbox chip per item.
+        String[] bulk = {"All", "None"};
+        for (String b : bulk) {
+            int w = font.width(b) + 12;
+            drawChip(g, lx, ly, w, mx, my, false);
+            g.drawString(font, b, lx + 6, ly + 4, 0xFFFFD27F);
+            legendHits.add(new Object[]{lx, ly, lx + w, ly + 14, "*" + b});
+            lx += w + 4;
+        }
         for (int i = 0; i < d.items().size(); i++) {
             String id = d.items().get(i);
-            String label = label(d, i);
-            int wLabel = Math.min(140, font.width(label) + 24);
-            if (lx + wLabel > width - 12) { lx = 12; ly += 14; }
+            String label = font.plainSubstrByWidth(label(d, i), 126);
+            int wLabel = font.width(label) + 28;
+            if (lx + wLabel > width - 12) { lx = 12; ly += 16; }
             boolean off = hidden.contains(id);
-            int col = ChartWidget.color(i);
-            g.fill(lx, ly + 2, lx + 8, ly + 10, off ? 0xFF444444 : col);
-            g.drawString(font, font.plainSubstrByWidth(label, 126), lx + 11, ly + 2, off ? 0xFF777777 : 0xFFEEEEEE);
-            legendHits.add(new Object[]{lx, ly, lx + wLabel, ly + 12, id});
-            lx += wLabel + 6;
+            drawChip(g, lx, ly, wLabel, mx, my, !off);
+            g.fill(lx + 4, ly + 3, lx + 12, ly + 11, 0xFF000000);
+            g.fill(lx + 5, ly + 4, lx + 11, ly + 10, off ? 0xFF333333 : ChartWidget.color(i));
+            g.drawString(font, label, lx + 16, ly + 4, off ? 0xFF777777 : 0xFFEEEEEE);
+            legendHits.add(new Object[]{lx, ly, lx + wLabel, ly + 14, id});
+            lx += wLabel + 4;
         }
-        g.drawString(font, "Scroll = zoom, drag = pan, click legend = show/hide", 12, height - 11, 0xFF888888);
+        g.drawString(font, "Scroll = zoom, drag = pan | legend: click = show/hide, right-click = only this item",
+                12, height - 11, 0xFF888888);
+    }
+
+    private void drawChip(GuiGraphics g, int x, int y, int w, int mx, int my, boolean on) {
+        boolean hover = mx >= x && mx <= x + w && my >= y && my <= y + 14;
+        g.fill(x, y, x + w, y + 14, hover ? 0xFF555555 : on ? 0xFF3A3A3A : 0xFF262626);
+        g.renderOutline(x, y, w, 14, on ? 0xFF888888 : 0xFF444444);
     }
 
     private void renderOverview(GuiGraphics g, HistoryResponsePayload d) {
@@ -336,7 +353,11 @@ public class AnalyticsScreen extends Screen {
         for (Object[] h : legendHits) {
             if (mx >= (int) h[0] && mx <= (int) h[2] && my >= (int) h[1] && my <= (int) h[3]) {
                 String id = (String) h[4];
-                if (!hidden.remove(id)) hidden.add(id);
+                HistoryResponsePayload d = ClientHooks.latest;
+                if (id.equals("*All")) hidden.clear();
+                else if (id.equals("*None")) { if (d != null) hidden.addAll(d.items()); }
+                else if (button == 1 && d != null) { hidden.addAll(d.items()); hidden.remove(id); }
+                else if (!hidden.remove(id)) hidden.add(id);
                 return true;
             }
         }
