@@ -7,8 +7,9 @@ const path = require('node:path');
 const { createApp } = require('../server');
 const { sign } = require('../lib/verify');
 
-const SECRET = 'test-secret-0123456789';
-const PASSWORD = 'dashboard-pass-123';
+const crypto = require('node:crypto');
+const SECRET = crypto.randomBytes(16).toString('hex'); // random per run, nothing secret is committed
+const PASSWORD = crypto.randomBytes(12).toString('hex');
 let NOW = Date.UTC(2026, 10, 3, 18, 0, 0);
 
 async function start(extra = {}) {
@@ -59,7 +60,7 @@ test('rejects wrong signature, wrong secret, stale timestamp, bad json', async (
   const s = await start();
   try {
     const body = snapshot([point('p', { a: item(1, 1, 0) })]);
-    assert.equal((await push(s.url, body, { secret: 'another-secret-0123456' })).status, 401);
+    assert.equal((await push(s.url, body, { secret: SECRET + 'x' })).status, 401);
     assert.equal((await push(s.url, body, { sigOverride: 'zz' })).status, 401);
     assert.equal((await push(s.url, body, { ts: String(NOW - 6 * 60 * 1000) })).status, 401);
     assert.equal((await push(s.url, '{not json')).status, 400);

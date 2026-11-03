@@ -12,7 +12,7 @@ Nimmt die Push-Snapshots der Mod entgegen, speichert sie als Minutenwerte (SQLit
 
 ## Demo ohne Minecraft
 ```
-cd website && node tools/seed-demo.js     # http://127.0.0.1:8792/fla/ , Passwort demo-password-123 (nur lokal)
+cd website && node tools/seed-demo.js     # http://127.0.0.1:8792/fla/ , das zufällige Passwort steht in der Konsole (nur lokal)
 ```
 Füllt eine temporäre Datenbank mit künstlichen Daten (3 Quellen, 20 Minuten Ausfall) und beendet sich nach 20 Minuten.
 

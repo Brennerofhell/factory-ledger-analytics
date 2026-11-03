@@ -69,3 +69,9 @@ Die Fremd-JARs (Factory Ledger, Storage Drawers, später Create) gehören nach `
 
 ## Lizenz
 [MIT](LICENSE) für den Code dieses Addons. Die Fremd-Mods (Create: Factory Ledger – *All Rights Reserved*, Storage Drawers, Create) sind **nicht** Teil dieses Repositories und stehen unter ihren eigenen Lizenzen; sie liegen nur lokal in `libs/` zum Kompilieren und werden nicht weitergegeben.
+
+## Keine Zugangsdaten im Repository
+Passwörter, Secrets und Tokens gehören in die Server-Config bzw. eine `.env` außerhalb des Repos, nie in Git. Ein Pre-commit-Hook blockiert verdächtige Zeilen; einmal pro Clone aktivieren:
+```
+git config core.hooksPath .githooks
+```

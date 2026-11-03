@@ -10,3 +10,16 @@ libs/
 *.log
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Zugangsdaten und Schlüssel nie einchecken
+.env
+.env.*
+*.pem
+*.key
+*.ppk
+id_rsa*
+id_ed25519*
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+website/data/

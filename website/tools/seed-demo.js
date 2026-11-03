@@ -1,16 +1,19 @@
 'use strict';
 /**
  * Local demo: starts the receiver on 127.0.0.1:8792 with synthetic data (3 sources, several items, a 20 minute
- * outage) so the dashboard can be looked at without Minecraft. Login password: demo-password-123 (local only).
+ * outage) so the dashboard can be looked at without Minecraft. A random login password is generated on every start
+ * and printed to the console (local only, nothing is stored).
  * Usage: node tools/seed-demo.js
  */
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { createApp } = require('../server');
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fla-demo-'));
-const app = createApp({ secret: 'demo-secret-0123456789', password: 'demo-password-123', dataDir: dir, retentionDays: 30 });
+const demoPassword = crypto.randomBytes(12).toString('hex');
+const app = createApp({ secret: crypto.randomBytes(24).toString('hex'), password: demoPassword, dataDir: dir, retentionDays: 30 });
 const now = Date.now();
 const MIN = 60000;
 
@@ -39,6 +42,6 @@ for (let m = 180; m >= 0; m--) {
   app.store.ingest({ version: 1, generatedAtMillis: t, windowSeconds: 300, kind: 'STOCK_DELTA', note: 'demo', points }, t);
 }
 const PORT = Number(process.env.DEMO_PORT || 8792);
-app.server.listen(PORT, '127.0.0.1', () => console.log('demo dashboard: http://127.0.0.1:' + PORT + '/fla/  (password: demo-password-123)'));
+app.server.listen(PORT, '127.0.0.1', () => console.log('demo dashboard: http://127.0.0.1:' + PORT + '/fla/  (password: ' + demoPassword + ')'));
 setTimeout(() => { app.close(); process.exit(0); }, 20 * 60 * 1000); // demo stops itself after 20 minutes
 process.on('SIGTERM', () => { app.close(); process.exit(0); });

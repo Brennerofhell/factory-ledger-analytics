@@ -3,6 +3,8 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Sicherheit
+- Keine Zugangsdaten im Repository: Historie geprüft (keine echten Geheimnisse), Testwerte in Demo-Skript und Tests (Node und Java) durch zufällige Werte pro Lauf ersetzt, `.gitignore` für `.env`, Schlüssel und Datenbanken ergänzt, Pre-commit-Hook `.githooks/pre-commit` blockiert verdächtige Zeilen (aktivieren: `git config core.hooksPath .githooks`).
 ### Website (`website/`)
 - Mehr Zeiträume: 5 min, 15 min, 30 min, 1 h, 2 h, 3 h, 6 h, 12 h, 24 h, 3 d, 7 d, 14 d, 30 d und **Alles** (alle gespeicherten Daten, höchstens 40 Tage).
 - Zeitachse: Option "Zeitachse auf Daten zuschneiden" (Standard an) schneidet den leeren Teil vor dem ersten Messwert ab, so dass junge Daten die ganze Breite nutzen. Neue Zeiträume 5 min und 15 min. Gleich benannte Items aus verschiedenen Mods erhalten den Namensraum in Klammern.

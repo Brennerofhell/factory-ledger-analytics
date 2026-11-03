@@ -1,0 +1,12 @@
+#!/bin/sh
+# Blocks commits that add something that looks like a password, secret, token, key or a private key.
+# Enable once per clone:  git config core.hooksPath .githooks
+diff=$(git diff --cached -U0 --no-color -- . ':!*.md' ':!.githooks')
+hits=$(printf '%s\n' "$diff" | grep -E '^\+' | grep -v '^+++' | grep -i -E "(password|passwort|passwd|secret|token|api[_-]?key|apikey)[a-z_]*[\"']?[[:space:]]*[=:][[:space:]]*[\"'][A-Za-z0-9+/_=-]{12,}[\"']|BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}")
+if [ -n "$hits" ]; then
+  echo "Commit abgebrochen: moegliche Zugangsdaten gefunden:" >&2
+  printf '%s\n' "$hits" | cut -c1-140 >&2
+  echo "Echte Werte gehoeren in eine .env ausserhalb des Repos. Falls es ein Fehlalarm ist: git commit --no-verify" >&2
+  exit 1
+fi
+exit 0

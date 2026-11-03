@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 
 /** Real local HTTP round trips for the pull API and the signed push (no Minecraft needed). */
 class ApiHttpTest {
-    private static final String TOKEN = "0123456789abcdef-token";
-    private static final String SECRET = "0123456789abcdef-secret";
+    private static final String TOKEN = java.util.UUID.randomUUID().toString(); // random per run
+    private static final String SECRET = java.util.UUID.randomUUID().toString();
     private HttpServer server;
     private final HttpClient client = HttpClient.newHttpClient();
 
@@ -117,7 +117,7 @@ class ApiHttpTest {
         // what the website does: recompute over timestamp + "." + raw body
         assertEquals(Hmac.sign(SECRET, ts.get() + "." + body.get()), sig.get());
         assertNotNull(sig.get());
-        assertTrue(!Hmac.sign("another-secret-xxxxxxxx", ts.get() + "." + body.get()).equals(sig.get()));
+        assertTrue(!Hmac.sign("another-" + SECRET, ts.get() + "." + body.get()).equals(sig.get()));
     }
 
     @Test
