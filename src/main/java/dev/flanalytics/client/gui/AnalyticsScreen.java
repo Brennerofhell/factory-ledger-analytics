@@ -63,6 +63,9 @@ public class AnalyticsScreen extends Screen {
         requestSoon();
     }
 
+    /** Tabs with a second control row (unit / chart type) push the content down. */
+    private int shift() { return tab == Tab.OVERVIEW || tab == Tab.CHARTS || tab == Tab.STATISTICS ? 16 : 0; }
+
     private void requestSoon() { lastRequest = 0; }
 
     private void sendRequest() {
@@ -96,18 +99,18 @@ public class AnalyticsScreen extends Screen {
             addRenderableWidget(Button.builder(Component.literal("Unit: " + names[displayTier]), btn -> {
                 displayTier = (displayTier + 1) % 3;
                 rebuildWidgets();
-            }).bounds(rx + 10 + (tab == Tab.CHARTS ? 112 : 0), 28, 90, 14).build());
+            }).bounds(12, 44, 90, 14).build());
         }
         if (tab == Tab.CHARTS) {
-            int cx = rx + 10;
+            int cx = 106;
             addRenderableWidget(Button.builder(Component.literal(type.name()), btn -> {
                 type = ChartWidget.Type.values()[(type.ordinal() + 1) % ChartWidget.Type.values().length];
                 rebuildWidgets();
-            }).bounds(cx, 28, 70, 14).build());
+            }).bounds(cx, 44, 70, 14).build());
             addRenderableWidget(Button.builder(Component.literal(metric.name()), btn -> {
                 metric = Metric.values()[(metric.ordinal() + 1) % Metric.values().length];
                 rebuildWidgets();
-            }).bounds(cx + 72, 28, 36, 14).build());
+            }).bounds(cx + 72, 44, 36, 14).build());
         }
         if (tab == Tab.SETTINGS) {
             addRenderableWidget(Button.builder(Component.literal("Unit: items" + unit.suffix), btn -> {
@@ -187,7 +190,7 @@ public class AnalyticsScreen extends Screen {
         if (d == null) { g.drawString(font, "Waiting for server...", 14, 56, 0xFFAAAAAA); return; }
         String head = (selected.isEmpty() ? "no point" : selected) + (d.live() ? "  [live samples]" : "  [stored history]")
                 + (follow ? "" : "  [paused - pan/zoom]");
-        g.drawString(font, head, 14, 46, 0xFFCCCCCC);
+        g.drawString(font, head, 14, 46 + shift(), 0xFFCCCCCC);
         switch (tab) {
             case CHARTS -> renderCharts(g, d, mx, my);
             case OVERVIEW -> renderOverview(g, d);
@@ -200,7 +203,7 @@ public class AnalyticsScreen extends Screen {
 
     private void renderCharts(GuiGraphics g, HistoryResponsePayload d, int mx, int my) {
         int legendH = 14 * (1 + (d.items().size() - 1) / Math.max(1, (width - 24) / 150));
-        chart.x = 12; chart.y = 68; chart.w = width - 24; chart.h = Math.max(60, height - 68 - legendH - 10);
+        chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 10);
         chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
         int lx = 12, ly = chart.y + chart.h + 6;
         for (int i = 0; i < d.items().size(); i++) {
@@ -219,7 +222,7 @@ public class AnalyticsScreen extends Screen {
     }
 
     private void renderOverview(GuiGraphics g, HistoryResponsePayload d) {
-        int y = 66;
+        int y = 66 + shift();
         String[] cols = {"Item", "Stock", "In/min", "Out/min", "Net/min", "Net/h", "Net/day", "Net total"};
         int[] cx = {32, 170, 230, 290, 350, 420, 490, 560};
         for (int i = 0; i < cols.length; i++) g.drawString(font, cols[i], cx[i], y, 0xFFFFD27F);
@@ -251,7 +254,7 @@ public class AnalyticsScreen extends Screen {
     }
 
     private void renderLinks(GuiGraphics g, HistoryResponsePayload d) {
-        int y = 66;
+        int y = 66 + shift();
         g.drawString(font, "Measurement points (from Factory Ledger links) - click to select", 12, y, 0xFFFFD27F);
         y += 14;
         long now = System.currentTimeMillis();
@@ -270,7 +273,7 @@ public class AnalyticsScreen extends Screen {
     }
 
     private void renderHistory(GuiGraphics g, HistoryResponsePayload d) {
-        int y = 66;
+        int y = 66 + shift();
         g.drawString(font, "Time", 12, y, 0xFFFFD27F);
         g.drawString(font, "Covered", 90, y, 0xFFFFD27F);
         g.drawString(font, "Gap", 150, y, 0xFFFFD27F);
@@ -293,7 +296,7 @@ public class AnalyticsScreen extends Screen {
     }
 
     private void renderStats(GuiGraphics g, HistoryResponsePayload d) {
-        int y = 66;
+        int y = 66 + shift();
         String[] cols = {"Item", "Min" + unit.suffix, "Avg" + unit.suffix, "Max" + unit.suffix, "Total in", "Total out", "Covered", "Gaps"};
         int[] cx = {32, 170, 235, 300, 365, 430, 495, 560};
         for (int i = 0; i < cols.length; i++) g.drawString(font, cols[i], cx[i], y, 0xFFFFD27F);

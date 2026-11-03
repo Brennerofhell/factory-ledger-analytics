@@ -4,6 +4,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-03
+### Behoben
+- Oberfläche: Die Leiste mit Einheit, Diagrammtyp und Metrik ragte in kleinen Fenstern über den rechten Rand hinaus. Sie liegt jetzt in einer eigenen Zeile unter den Zeitbereichen; der Inhalt rückt entsprechend nach unten.
+
 ## [1.0.2] - 2026-11-03
 ### Geändert
 - Findet die Mod für ein Item keine größere Einheit (Barren/Block), schreibt sie einmalig den Grund ins Log (`No larger unit found for ...`). Für die Fehlersuche bei der Anzeigeeinheit.

@@ -4,7 +4,7 @@ NeoForge-Addon für **Create: Factory Ledger** (Minecraft 1.21.1, NeoForge 21.1.
 Langzeit-Historie, Diagramme, Offline-Aufzeichnung, Export und eine optionale Web-Schnittstelle.
 Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR ohne Mixins.
 
-**Aktuelle Version: 1.0.2** (siehe [CHANGELOG.md](CHANGELOG.md), Versionsschema in [docs/VERSIONING.md](docs/VERSIONING.md)).
+**Aktuelle Version: 1.0.3** (siehe [CHANGELOG.md](CHANGELOG.md), Versionsschema in [docs/VERSIONING.md](docs/VERSIONING.md)).
 
 ## Dokumentation
 | Dokument | Inhalt |
