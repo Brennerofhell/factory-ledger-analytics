@@ -3,7 +3,10 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
-- Diagnose-Befehl `/flanalytics rules <item>` zeigt, welche Compacting-Regeln Storage Drawers für ein Item meldet.
+
+## [1.0.1] - 2026-11-03
+### Hinzugefügt
+- Diagnose-Befehl `/flanalytics rules <item>` zeigt, welche Compacting-Regeln Storage Drawers für ein Item meldet (Fehlersuche bei der Anzeigeeinheit Nugget/Barren/Block).
 
 ## [1.0.0] - 2026-11-03  (Tag `v1.0.0`, Commit a16c24f)
 Erste lauffähige Version (Messung im Spiel bestätigt: Diagramm, Datenanzeige).
