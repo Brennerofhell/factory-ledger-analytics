@@ -4,6 +4,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-03
+### Hinzugefügt
+- **Mehrere Messpunkte in einem Diagramm:** Im Tab Links lassen sich bis zu 8 Quellen per Klick an-/abwählen (z. B. Gold aus Quelle A und Holz aus Quelle B). Gleiche Items aus verschiedenen Quellen werden addiert, verschiedene bleiben getrennte Linien. Live-Daten nur, wenn jeder Punkt welche hat. Protokoll: `pointId` darf mehrere IDs mit `|` enthalten (Server prüft und begrenzt).
+- **Einheit "all"** im Tab Charts: Nugget, Barren und Block eines Compacting Drawers gleichzeitig als eigene Linien (reine Anzeige, es wird nichts doppelt gemessen).
+
 ## [1.0.4] - 2026-11-03
 ### Geändert
 - Item-Auswahl im Diagramm: Legende als Kästchen mit Rahmen und Hover, Knöpfe **All** und **None**, Rechtsklick zeigt nur dieses Item. Die Legende überlappt nicht mehr mit der Hinweiszeile.

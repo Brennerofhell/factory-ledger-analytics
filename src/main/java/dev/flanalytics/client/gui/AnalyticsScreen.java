@@ -95,9 +95,9 @@ public class AnalyticsScreen extends Screen {
             rx += 35;
         }
         if (tab == Tab.OVERVIEW || tab == Tab.CHARTS || tab == Tab.STATISTICS) {
-            String[] names = {"smallest", "middle", "largest"};
-            addRenderableWidget(Button.builder(Component.literal("Unit: " + names[displayTier]), btn -> {
-                displayTier = (displayTier + 1) % 3;
+            String[] names = {"smallest", "middle", "largest", "all"};
+            addRenderableWidget(Button.builder(Component.literal("Unit: " + names[Math.min(displayTier, tab == Tab.CHARTS ? 3 : 2)]), btn -> {
+                displayTier = (displayTier + 1) % (tab == Tab.CHARTS ? 4 : 3);
                 rebuildWidgets();
             }).bounds(12, 44, 90, 14).build());
         }
@@ -146,12 +146,12 @@ public class AnalyticsScreen extends Screen {
         g.fill(0, 0, width, height, 0xE0101018);
     }
 
-    private int displayTier; // 0 = smallest unit (nuggets), 1 = next (ingots), 2 = largest (blocks)
+    private int displayTier; // 0 = smallest unit (nuggets), 1 = next (ingots), 2 = largest (blocks), 3 = all units as separate lines (charts only)
 
     private dev.flanalytics.network.TierDto tier(HistoryResponsePayload d, int i) {
         if (i >= d.ladders().size() || d.ladders().get(i).isEmpty()) return null;
         var l = d.ladders().get(i);
-        return l.get(Math.min(displayTier, l.size() - 1));
+        return l.get(Math.min(Math.min(displayTier, 2), l.size() - 1));
     }
 
     private double div(HistoryResponsePayload d, int i) {
@@ -188,7 +188,7 @@ public class AnalyticsScreen extends Screen {
         legendHits.clear();
         pointHits.clear();
         if (d == null) { g.drawString(font, "Waiting for server...", 14, 56, 0xFFAAAAAA); return; }
-        String head = (selected.isEmpty() ? "no point" : selected) + (d.live() ? "  [live samples]" : "  [stored history]")
+        String head = (selected.isEmpty() ? "no point" : selectedIds().size() > 1 ? selectedIds().size() + " points combined" : selected) + (d.live() ? "  [live samples]" : "  [stored history]")
                 + (follow ? "" : "  [paused - pan/zoom]");
         g.drawString(font, head, 14, 46 + shift(), 0xFFCCCCCC);
         switch (tab) {
@@ -201,10 +201,12 @@ public class AnalyticsScreen extends Screen {
         }
     }
 
-    private void renderCharts(GuiGraphics g, HistoryResponsePayload d, int mx, int my) {
+    private void renderCharts(GuiGraphics g, HistoryResponsePayload d0, int mx, int my) {
+        final HistoryResponsePayload d = displayTier == 3 ? expandUnits(d0) : d0;
         int legendH = 16 * (1 + (d.items().size() + 1) / Math.max(1, (width - 24) / 150));
         chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 24);
         chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
+        legendItems = d.items();
         int lx = 12, ly = chart.y + chart.h + 6;
         // "All" / "None" chips first, then one checkbox chip per item.
         String[] bulk = {"All", "None"};
@@ -231,6 +233,55 @@ public class AnalyticsScreen extends Screen {
         g.drawString(font, "Scroll = zoom, drag = pan | legend: click = show/hide, right-click = only this item",
                 12, height - 11, 0xFF888888);
     }
+
+    /**
+     * "Unit: all": every unit of a compacting chain becomes its own series (nugget, ingot, block). Pure client-side
+     * view: the same measured amounts are shown divided by each unit's size, nothing is added or measured twice.
+     */
+    private HistoryResponsePayload expandUnits(HistoryResponsePayload d) {
+        List<String> items = new ArrayList<>();
+        List<List<dev.flanalytics.network.TierDto>> ladders = new ArrayList<>();
+        List<int[]> map = new ArrayList<>(); // original item -> virtual item indexes
+        for (int j = 0; j < d.items().size(); j++) {
+            var l = j < d.ladders().size() ? d.ladders().get(j) : List.<dev.flanalytics.network.TierDto>of();
+            if (l.isEmpty()) {
+                map.add(new int[]{items.size()});
+                items.add(d.items().get(j));
+                ladders.add(List.of());
+            } else {
+                int[] idx = new int[l.size()];
+                for (int r = 0; r < l.size(); r++) {
+                    idx[r] = items.size();
+                    items.add(d.items().get(j) + "#" + r);
+                    ladders.add(List.of(l.get(r)));
+                }
+                map.add(idx);
+            }
+        }
+        List<dev.flanalytics.network.ChartBucket> out = new ArrayList<>(d.buckets().size());
+        for (var b : d.buckets()) {
+            int n = 0;
+            for (int k = 0; k < b.item().length; k++) n += map.get(b.item()[k]).length;
+            int[] it = new int[n]; long[] in = new long[n], ou = new long[n], st = new long[n];
+            int w = 0;
+            for (int k = 0; k < b.item().length; k++) {
+                for (int v : map.get(b.item()[k])) {
+                    it[w] = v; in[w] = b.in()[k]; ou[w] = b.out()[k]; st[w] = b.stock()[k]; w++;
+                }
+            }
+            out.add(new dev.flanalytics.network.ChartBucket(b.start(), b.width(), b.coveredMs(), b.gapMs(), it, in, ou, st));
+        }
+        return new HistoryResponsePayload(d.hasPoints(), d.points(), d.selected(), d.live(), d.from(), d.to(),
+                d.compactingMode(), items, ladders, out);
+    }
+
+    private List<String> selectedIds() {
+        List<String> l = new ArrayList<>();
+        for (String id : selected.split(java.util.regex.Pattern.quote("|"))) if (!id.isEmpty()) l.add(id);
+        return l;
+    }
+
+    private List<String> legendItems = List.of();
 
     private void drawChip(GuiGraphics g, int x, int y, int w, int mx, int my, boolean on) {
         boolean hover = mx >= x && mx <= x + w && my >= y && my <= y + 14;
@@ -272,16 +323,16 @@ public class AnalyticsScreen extends Screen {
 
     private void renderLinks(GuiGraphics g, HistoryResponsePayload d) {
         int y = 66 + shift();
-        g.drawString(font, "Measurement points (from Factory Ledger links) - click to select", 12, y, 0xFFFFD27F);
+        g.drawString(font, "Measurement points (from Factory Ledger links) - click to add/remove, several can share one chart", 12, y, 0xFFFFD27F);
         y += 14;
         long now = System.currentTimeMillis();
         int i = 0;
         for (PointMeta m : d.points()) {
             int row = y + (int) (i++ * 14 - scroll);
             if (row < 80 || row > height - 14) continue;
-            boolean sel = m.id().equals(selected);
+            boolean sel = selectedIds().contains(m.id());
             long age = (now - m.lastSampleMillis()) / 1000;
-            String s = (sel ? "> " : "  ") + m.dimension() + " " + m.x() + ", " + m.y() + ", " + m.z() + "   mode " + m.mode()
+            String s = (sel ? "[x] " : "[ ] ") + m.dimension() + " " + m.x() + ", " + m.y() + ", " + m.z() + "   mode " + m.mode()
                     + "   last sample " + (age > 120 ? age / 60 + " min" : age + " s") + " ago" + (age > 120 ? "  (not measured now)" : "");
             g.drawString(font, s, 12, row, sel ? 0xFFFFFFFF : 0xFFBBBBBB);
             pointHits.add(new Object[]{12, row - 2, width - 12, row + 11, m.id()});
@@ -353,17 +404,20 @@ public class AnalyticsScreen extends Screen {
         for (Object[] h : legendHits) {
             if (mx >= (int) h[0] && mx <= (int) h[2] && my >= (int) h[1] && my <= (int) h[3]) {
                 String id = (String) h[4];
-                HistoryResponsePayload d = ClientHooks.latest;
                 if (id.equals("*All")) hidden.clear();
-                else if (id.equals("*None")) { if (d != null) hidden.addAll(d.items()); }
-                else if (button == 1 && d != null) { hidden.addAll(d.items()); hidden.remove(id); }
+                else if (id.equals("*None")) { hidden.addAll(legendItems); }
+                else if (button == 1) { hidden.addAll(legendItems); hidden.remove(id); }
                 else if (!hidden.remove(id)) hidden.add(id);
                 return true;
             }
         }
         for (Object[] h : pointHits) {
             if (mx >= (int) h[0] && mx <= (int) h[2] && my >= (int) h[1] && my <= (int) h[3]) {
-                selected = (String) h[4];
+                List<String> ids = new ArrayList<>(selectedIds());
+                String clicked = (String) h[4];
+                if (!ids.remove(clicked)) { if (ids.size() < 8) ids.add(clicked); }
+                if (ids.isEmpty()) ids.add(clicked); // never leave the chart without a point
+                selected = String.join("|", ids);
                 hidden.clear();
                 requestSoon();
                 return true;

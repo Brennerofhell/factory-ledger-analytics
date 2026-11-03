@@ -24,7 +24,7 @@ public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, 
             buf.writeInt(m.x()); buf.writeInt(m.y()); buf.writeInt(m.z());
             buf.writeUtf(m.mode(), 32); buf.writeLong(m.lastSampleMillis());
         }
-        buf.writeUtf(p.selected, 256);
+        buf.writeUtf(p.selected, 2048);
         buf.writeBoolean(p.live);
         buf.writeLong(p.from); buf.writeLong(p.to);
         buf.writeUtf(p.compactingMode, 32);
@@ -53,7 +53,7 @@ public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, 
         for (int i = 0; i < np; i++) {
             points.add(new PointMeta(buf.readUtf(256), buf.readUtf(128), buf.readInt(), buf.readInt(), buf.readInt(), buf.readUtf(32), buf.readLong()));
         }
-        String selected = buf.readUtf(256);
+        String selected = buf.readUtf(2048);
         boolean live = buf.readBoolean();
         long from = buf.readLong(), to = buf.readLong();
         String mode = buf.readUtf(32);

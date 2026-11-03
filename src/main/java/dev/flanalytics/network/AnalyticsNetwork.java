@@ -42,16 +42,19 @@ public final class AnalyticsNetwork {
         var history = FactoryLedgerAnalytics.HISTORY;
         List<PointMeta> metas = p.wantPoints() ? history.metas() : List.of();
         String selected = p.pointId();
-        var point = selected.isEmpty() ? null : history.point(selected);
-        QueryService.Result r;
-        if (point == null && selected.isEmpty() && !metas.isEmpty()) {
-            selected = metas.get(0).id();
-            point = history.point(selected);
+        if (selected.isEmpty() && !metas.isEmpty()) selected = metas.get(0).id();
+        List<String> ids = new java.util.ArrayList<>();
+        for (String id : selected.split("\\" + QueryService.POINT_SEPARATOR)) {
+            if (!id.isEmpty() && history.point(id) != null && !ids.contains(id)) ids.add(id);
         }
-        if (point == null && selected.isEmpty()) {
+        if (ids.size() > QueryService.MAX_POINTS) ids = new java.util.ArrayList<>(ids.subList(0, QueryService.MAX_POINTS));
+        selected = String.join(QueryService.POINT_SEPARATOR, ids);
+        QueryService.Result r;
+        if (ids.isEmpty()) {
             r = new QueryService.Result(List.of(), List.of(), false, p.from(), p.to());
         } else {
-            r = QueryService.query(point, FactoryLedgerAnalytics.MONITORING.recentSamples(), selected, p.from(), p.to(), p.maxBuckets(), now);
+            r = QueryService.queryMulti(history::point, FactoryLedgerAnalytics.MONITORING.recentSamples(), ids,
+                    p.from(), p.to(), p.maxBuckets(), now);
         }
         List<List<TierDto>> ladders = new java.util.ArrayList<>();
         for (String item : r.items()) {

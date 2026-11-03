@@ -12,13 +12,13 @@ public record HistoryRequestPayload(String pointId, long from, long to, int maxB
             new Type<>(ResourceLocation.fromNamespaceAndPath(FactoryLedgerAnalytics.MOD_ID, "history_request"));
     public static final StreamCodec<FriendlyByteBuf, HistoryRequestPayload> CODEC = StreamCodec.of(
             (buf, p) -> {
-                buf.writeUtf(p.pointId, 256);
+                buf.writeUtf(p.pointId, 1024);
                 buf.writeLong(p.from);
                 buf.writeLong(p.to);
                 buf.writeVarInt(p.maxBuckets);
                 buf.writeBoolean(p.wantPoints);
             },
-            buf -> new HistoryRequestPayload(buf.readUtf(256), buf.readLong(), buf.readLong(), buf.readVarInt(), buf.readBoolean()));
+            buf -> new HistoryRequestPayload(buf.readUtf(1024), buf.readLong(), buf.readLong(), buf.readVarInt(), buf.readBoolean()));
 
     @Override
     public Type<? extends CustomPacketPayload> type() { return TYPE; }

@@ -21,21 +21,63 @@ public final class QueryService {
 
     private QueryService() {}
 
+    /** Max number of points combined into one chart. */
+    public static final int MAX_POINTS = 8;
+    public static final String POINT_SEPARATOR = "|";
+
     public static Result query(PointHistory history, List<MeasurementSample> recent, String pointId,
                                long from, long to, int maxBuckets, long now) {
+        return queryMulti(id -> history, recent, List.of(pointId), from, to, maxBuckets, now);
+    }
+
+    /**
+     * One chart from several points (e.g. gold from one source, wood from another). Same items from different
+     * points are summed; different items stay separate. Live data is used only if every point has it.
+     */
+    public static Result queryMulti(java.util.function.Function<String, PointHistory> histories, List<MeasurementSample> recent,
+                                    List<String> pointIds, long from, long to, int maxBuckets, long now) {
         to = Math.min(to, now);
         from = Math.max(from, to - MAX_SPAN_MS);
         if (from >= to) from = to - 60_000L;
         int max = Math.max(10, Math.min(maxBuckets, MAX_BUCKETS));
-        List<Bucket> buckets = null;
+        List<String> ids = pointIds.size() > MAX_POINTS ? pointIds.subList(0, MAX_POINTS) : pointIds;
+        List<List<Bucket>> perPoint = new ArrayList<>();
         boolean live = false;
         if (to - from <= LIVE_MAX_SPAN_MS) {
-            List<Bucket> l = liveBuckets(recent, pointId, from, to);
-            if (l.size() >= 2) { buckets = l; live = true; }
+            live = true;
+            for (String id : ids) {
+                List<Bucket> l = liveBuckets(recent, id, from, to);
+                if (l.size() < 2) { live = false; break; }
+                perPoint.add(PointHistory.downsample(l, from, to, max));
+            }
         }
-        if (buckets == null) buckets = history == null ? new ArrayList<>() : history.query(from, to, max);
-        else buckets = PointHistory.downsample(buckets, from, to, max);
-        return toResult(buckets, live, from, to);
+        if (!live) {
+            perPoint.clear();
+            for (String id : ids) {
+                PointHistory h = histories.apply(id);
+                perPoint.add(h == null ? new ArrayList<>() : h.query(from, to, max));
+            }
+        }
+        return toResult(perPoint.size() == 1 ? perPoint.get(0) : mergePoints(perPoint), live, from, to);
+    }
+
+    /** Combine bucket lists of several points by start time (slots are aligned: same tier / same sampling grid). */
+    public static List<Bucket> mergePoints(List<List<Bucket>> lists) {
+        java.util.TreeMap<Long, Bucket> byStart = new java.util.TreeMap<>();
+        for (List<Bucket> l : lists) {
+            for (Bucket b : l) {
+                Bucket t = byStart.get(b.start);
+                if (t == null) { byStart.put(b.start, b.copyAs(b.start, b.width)); continue; }
+                t.coveredMs = Math.max(t.coveredMs, b.coveredMs);
+                t.gapMs = Math.max(t.gapMs, b.gapMs);
+                t.samples += b.samples;
+                for (Map.Entry<String, long[]> e : b.items.entrySet()) {
+                    long[] a = t.item(e.getKey());
+                    a[0] += e.getValue()[0]; a[1] += e.getValue()[1]; a[2] += e.getValue()[2];
+                }
+            }
+        }
+        return new ArrayList<>(byStart.values());
     }
 
     static List<Bucket> liveBuckets(List<MeasurementSample> recent, String pointId, long from, long to) {
@@ -49,7 +91,7 @@ public final class QueryService {
             else if (s.gapBefore()) gap = interval;
             prev = s.wallMillis();
             if (s.wallMillis() < from || s.wallMillis() > to) continue;
-            Bucket b = new Bucket(s.wallMillis() - interval, interval);
+            Bucket b = new Bucket(Math.round((double) s.wallMillis() / interval) * interval - interval, interval);
             b.gapMs = gap;
             if (!s.baseline()) {
                 b.samples = 1;

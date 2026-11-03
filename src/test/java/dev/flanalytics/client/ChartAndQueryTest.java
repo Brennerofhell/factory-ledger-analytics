@@ -97,4 +97,19 @@ class ChartAndQueryTest {
         long gap = r.buckets().stream().mapToLong(ChartBucket::gapMs).sum();
         assertTrue(gap > 25_000);
     }
+
+    @org.junit.jupiter.api.Test
+    void mergePointsSumsSameItemAndKeepsOthers() {
+        var a = new dev.flanalytics.history.Bucket(1000, 1000);
+        a.coveredMs = 1000; a.item("gold")[0] = 5; a.item("gold")[2] = 10;
+        var b = new dev.flanalytics.history.Bucket(1000, 1000);
+        b.coveredMs = 1000; b.item("wood")[0] = 7; b.item("gold")[0] = 2; b.item("gold")[2] = 4;
+        var merged = dev.flanalytics.network.QueryService.mergePoints(java.util.List.of(java.util.List.of(a), java.util.List.of(b)));
+        org.junit.jupiter.api.Assertions.assertEquals(1, merged.size());
+        var m = merged.get(0);
+        org.junit.jupiter.api.Assertions.assertEquals(7, m.items.get("gold")[0]);
+        org.junit.jupiter.api.Assertions.assertEquals(14, m.items.get("gold")[2]);
+        org.junit.jupiter.api.Assertions.assertEquals(7, m.items.get("wood")[0]);
+        org.junit.jupiter.api.Assertions.assertEquals(1000, m.coveredMs);
+    }
 }
