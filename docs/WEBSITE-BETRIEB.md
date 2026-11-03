@@ -76,6 +76,14 @@ intervalSeconds = 30
 ```
 Danach Minecraft-Server neu starten. Ein erfolgreicher Push schreibt nichts ins Log; Fehler stehen als `Push failed (Nx): …`.
 
+### Die Mod-Config beim Minecraft-Hoster ändern (Kinetic Hosting)
+Erfahrungen aus der Einrichtung:
+1. **Server zuerst stoppen.** Die Mod schreibt ihre Config beim Start/Beenden selbst; eine bei laufendem Server hochgeladene Datei kann überschrieben werden.
+2. **Der Dateimanager im Panel** (File Manager → `config` → Datei anklicken → Save) speichert direkt auf dem Server und ist am zuverlässigsten.
+3. Mit **FileZilla** ist "Anzeigen/Bearbeiten" fehleranfällig: Die Rückfrage "Datei hochladen?" erscheint leicht verdeckt. Sicherer: Datei herunterladen, lokal bearbeiten und wieder in den Ordner `config` ziehen (Überschreiben bestätigen). Im Reiter "Erfolgreiche Übertragungen" muss danach ein Eintrag mit `-->>` (Upload) stehen, ein `<<--` ist nur ein Download.
+4. Danach den Minecraft-Server **starten**. Die Config wird nur beim Start gelesen. Nach dem Start im Panel-Editor prüfen, dass `enabled = true` noch dort steht.
+5. Auf dem Minecraft-Server und bei den Spielern muss dieselbe Mod-Version liegen; der Push braucht mindestens Version 1.1.5.
+
 ## Fehlersuche
 | Beobachtung | Ursache / Maßnahme |
 |---|---|
@@ -97,4 +105,5 @@ Danach Minecraft-Server neu starten. Ein erfolgreicher Push schreibt nichts ins 
 ## Grenzen
 - Gemessen werden **Bestandsänderungen** (`STOCK_DELTA`), keine Brutto-Produktion. Förderbänder werden nicht gemessen.
 - Die Mod schickt nur die Werte der letzten 5 Minuten; die Langzeit-Historie baut der Empfänger selbst auf. Daten vor dem ersten Push gibt es dort nicht.
+- Aufbewahrung 30 Tage und keine gröbere Speicherung für ältere Daten: Bei vielen Quellen wächst die Datenbank (grob 100.000 Zeilen pro Tag bei 8 Quellen); längere Zeiträume bräuchten eine Verdichtung.
 - Das Dashboard wurde im Browser mit künstlichen Demo-Daten geprüft (`website/tools/seed-demo.js`): Diagramm, Quellen- und Item-Auswahl, Lücken, Tabelle. Seit dem 3.11.2026 kommen auch **echte** Pushes von Minecraft an (8 Quellen); eine längere Beobachtung über Stunden und Server-Neustarts steht noch aus.

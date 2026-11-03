@@ -4,7 +4,13 @@ Nimmt die Push-Snapshots der Mod entgegen, speichert sie als Minutenwerte (SQLit
 
 ## Was es tut
 - `POST /fla/ingest`: prüft Zeitstempel (max. 5 Minuten Abweichung) und HMAC-SHA256 über den **rohen** Body, antwortet `204`. Body max. 1 MB.
-- `GET /fla/`: Dashboard (Login per Passwort). Quellen und Items auswählbar, mehrere Quellen im selben Diagramm, Zeiträume 1 h bis 30 d.
+- `GET /fla/`: Dashboard (Login per Passwort).
+  - **Zeiträume:** 5 min, 15 min, 30 min, 1 h, 2 h, 3 h, 6 h, 12 h, 24 h, 3 d, 7 d, 14 d, 30 d, Alles (alle gespeicherten Daten, höchstens 40 Tage).
+  - **Quellen und Items** per Kästchen wählbar, mehrere Quellen im selben Diagramm (gleiche Items werden addiert). Gleich benannte Items aus verschiedenen Mods zeigen den Namensraum in Klammern.
+  - **Größe:** Net, In, Out pro Minute oder Bestand.
+  - **Zeitachse auf Daten zuschneiden** (Standard an): der leere Bereich vor dem ersten Messwert wird abgeschnitten, junge Daten nutzen die ganze Breite.
+  - **Diagramm:** scharf auf hochauflösenden Bildschirmen, weiche Flächen unter den Linien, gestrichelte Hilfslinien mit runden Achsenwerten (Null auf einer Rasterlinie), Zeiten ohne Messung als rot schraffierte Bereiche "nicht gemessen", Fadenkreuz mit Punkten und Tooltip (Farbmarkierung, nach Wert sortiert) beim Überfahren.
+  - **Statuszeile** oben rechts: "Letzter Empfang: N s her"; wird rot, wenn länger als 5 Minuten nichts ankam oder noch nie etwas.
 - Pro Quelle, Item und Minute gibt es einen Wert. Minuten ohne Daten haben **keine** Zeile: Das Diagramm zeigt dort eine Lücke, nie eine 0. Ohne gemessene Zeit im Fenster (`coveredSeconds = 0`) werden keine Raten gespeichert.
 - Gleiche Items aus mehreren Quellen werden addiert (wie in der Mod).
 - Unter dem Diagramm: Tabelle mit Letzter Wert, Min, Ø, Max und gemessenen Minuten je Item; **CSV herunterladen** exportiert, was das Diagramm zeigt.
@@ -51,6 +57,16 @@ url = "https://<deine-domain>/fla/ingest"
 secret = "<dasselbe wie FLA_SECRET>"
 intervalSeconds = 30
 ```
+
+## Dateien
+| Datei | Aufgabe |
+|---|---|
+| `server.js` | Routen (`/ingest`, Login, Dashboard, `/api/*`), Sitzungen, Sicherheits-Header |
+| `lib/verify.js` | Zeitstempel- und HMAC-Prüfung |
+| `lib/store.js` | SQLite: Minutenwerte, Summe über Quellen, Abfrage mit Bucket-Größe |
+| `public/app.js`, `public/style.css` | Dashboard (Canvas-Diagramm ohne Fremdbibliothek) |
+| `tools/seed-demo.js` | Lokale Demo mit künstlichen Daten |
+| `test/receiver.test.js` | 6 Node-Tests |
 
 ## Tests
 ```
