@@ -73,7 +73,22 @@ public final class MonitoringService {
             List<ChainNormalizer.Tier> l = n.ladder(itemId);
             if (!l.isEmpty()) return l;
         }
+        logMissingLadder(itemId);
         return List.of();
+    }
+
+    private final java.util.Set<String> loggedItems = new java.util.HashSet<>();
+    private java.lang.ref.WeakReference<ServerLevel> anyLevel = new java.lang.ref.WeakReference<>(null);
+
+    /** Once per item: write why no nugget/ingot/block ladder exists, so a log excerpt is enough to diagnose it. */
+    private void logMissingLadder(String itemId) {
+        ServerLevel level = anyLevel.get();
+        if (!drawersLoaded || level == null || !loggedItems.add(itemId)) return;
+        try {
+            FactoryLedgerAnalytics.LOGGER.info("No larger unit found for {}:\n{}", itemId, new McRuleSource(level).explain(itemId));
+        } catch (RuntimeException e) {
+            FactoryLedgerAnalytics.LOGGER.warn("Could not explain compacting rules for {}: {}", itemId, e.toString());
+        }
     }
 
     /** Start a fresh baseline for every point (e.g. after a counting-mode change). */
@@ -142,6 +157,7 @@ public final class MonitoringService {
             if (!s.isEmpty()) slots.add(new StockSampler.SlotStack(BuiltInRegistries.ITEM.getKey(s.getItem()).toString(), s.getCount()));
         }
         var mode = AnalyticsConfig.COMPACTING_MODE.get();
+        anyLevel = new java.lang.ref.WeakReference<>(level);
         ChainNormalizer norm = normalizers.computeIfAbsent(dim,
                 k -> new ChainNormalizer(drawersLoaded ? new McRuleSource(level) : item -> null));
         DeltaTracker.Result r = point.tracker.update(StockSampler.snapshot(slots, mode, compacting, norm));

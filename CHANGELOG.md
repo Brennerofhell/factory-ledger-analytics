@@ -3,6 +3,10 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+
+## [1.0.2] - 2026-11-03
+### Geändert
+- Findet die Mod für ein Item keine größere Einheit (Barren/Block), schreibt sie einmalig den Grund ins Log (`No larger unit found for ...`). Für die Fehlersuche bei der Anzeigeeinheit.
 ### Dokumentation
 - Neue Dokumente: Bedienung, Architektur, Konfiguration, Bekannte Probleme; README aktualisiert.
 

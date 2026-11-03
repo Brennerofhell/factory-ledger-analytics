@@ -1,6 +1,6 @@
 # Bekannte Probleme und Grenzen
 
-Stand: Version 1.0.1. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt.
+Stand: Version 1.0.2. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt.
 
 ## Fehler aus dem Code-Review
 | # | Bereich | Problem | Auswirkung |
