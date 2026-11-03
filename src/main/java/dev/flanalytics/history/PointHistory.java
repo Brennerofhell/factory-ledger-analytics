@@ -118,6 +118,12 @@ public final class PointHistory {
                 if (b.start + b.width > from) all.add(b.copyAs(b.start, b.width));
             }
         }
+        return downsample(all, from, to, maxBuckets);
+    }
+
+    /** Merge buckets into at most about {@code maxBuckets} equal slots across [from,to]; totals are preserved. */
+    public static List<Bucket> downsample(List<Bucket> all, long from, long to, int maxBuckets) {
+        all = new ArrayList<>(all);
         all.sort((a, b) -> Long.compare(a.start, b.start));
         if (maxBuckets <= 0 || all.size() <= maxBuckets) return all;
         long span = Math.max(1, to - from);

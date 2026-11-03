@@ -67,6 +67,11 @@ public final class MonitoringService {
         return new ArrayList<>(recent);
     }
 
+    /** Start a fresh baseline for every point (e.g. after a counting-mode change). */
+    public void markAllGaps() {
+        points.values().forEach(p -> p.tracker.markGap());
+    }
+
     /** Called when recipes / compacting rules may have changed. */
     public void invalidateRules() {
         normalizers.values().forEach(ChainNormalizer::invalidate);

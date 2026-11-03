@@ -26,6 +26,7 @@ public class FactoryLedgerAnalytics {
 
     public FactoryLedgerAnalytics(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, AnalyticsConfig.SPEC);
+        modBus.addListener(dev.flanalytics.network.AnalyticsNetwork::register);
         MONITORING.register();
         HISTORY.register();
         MONITORING.addSink(HISTORY::accept);

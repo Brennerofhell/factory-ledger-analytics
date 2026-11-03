@@ -75,6 +75,18 @@ public final class HistoryService {
         return new ArrayList<>(points.keySet());
     }
 
+    public List<dev.flanalytics.network.PointMeta> metas() {
+        List<dev.flanalytics.network.PointMeta> out = new ArrayList<>();
+        for (PointHistory p : points.values()) {
+            synchronized (p) {
+                out.add(new dev.flanalytics.network.PointMeta(p.id, p.dimension, p.x, p.y, p.z, p.mode, p.lastSampleMillis));
+            }
+            if (out.size() >= 256) break;
+        }
+        out.sort(java.util.Comparator.comparing(dev.flanalytics.network.PointMeta::id));
+        return out;
+    }
+
     public PointHistory point(String id) {
         return points.get(id);
     }

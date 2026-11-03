@@ -14,6 +14,8 @@ public final class AnalyticsConfig {
     public static final ModConfigSpec.BooleanValue DEBUG;
     public static final ModConfigSpec.BooleanValue EXPORT_ENABLED;
     public static final ModConfigSpec.EnumValue<CompactingMode> COMPACTING_MODE;
+    public static final ModConfigSpec.IntValue GUI_PERMISSION_LEVEL;
+    public static final ModConfigSpec.IntValue MODE_PERMISSION_LEVEL;
     public static final ModConfigSpec.BooleanValue API_ENABLED;
     public static final ModConfigSpec.ConfigValue<String> API_BIND;
     public static final ModConfigSpec.IntValue API_PORT;
@@ -40,6 +42,10 @@ public final class AnalyticsConfig {
         COMPACTING_MODE = b.comment("OFF = like Factory Ledger (duplicates), DEDUPLICATE = count chain once,",
                 "NORMALIZED = convert chain to one base unit using the real compacting rules.")
                 .defineEnum("mode", CompactingMode.NORMALIZED);
+        b.pop();
+        b.push("permissions");
+        GUI_PERMISSION_LEVEL = b.comment("Minimum permission level (0 = everyone, 2 = operators) to read analytics data.").defineInRange("viewLevel", 0, 0, 4);
+        MODE_PERMISSION_LEVEL = b.comment("Minimum permission level to change the compacting mode.").defineInRange("modeLevel", 2, 0, 4);
         b.pop();
         b.comment("Read-only HTTP API (GET). Needs a free port; many hosts only allow the game port - then use push.").push("api");
         API_ENABLED = b.define("enabled", false);
