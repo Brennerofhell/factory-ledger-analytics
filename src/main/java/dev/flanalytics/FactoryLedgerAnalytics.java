@@ -19,6 +19,7 @@ public class FactoryLedgerAnalytics {
     public static final String MOD_ID = "factoryledgeranalytics";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final MonitoringService MONITORING = new MonitoringService();
+    public static final dev.flanalytics.history.HistoryService HISTORY = new dev.flanalytics.history.HistoryService();
 
     private final ApiServer api = new ApiServer();
     private final WebhookPusher pusher = new WebhookPusher();
@@ -26,6 +27,8 @@ public class FactoryLedgerAnalytics {
     public FactoryLedgerAnalytics(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, AnalyticsConfig.SPEC);
         MONITORING.register();
+        HISTORY.register();
+        MONITORING.addSink(HISTORY::accept);
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> {
             api.start();
             pusher.start();
