@@ -64,13 +64,56 @@ public class AnalyticsScreen extends Screen {
     }
 
     /** Tabs with a second control row (unit / chart type) push the content down. */
-    private int shift() { return tab == Tab.OVERVIEW || tab == Tab.CHARTS || tab == Tab.STATISTICS ? 16 : 0; }
+    private int shift() {
+        if (tab == Tab.CHARTS) return 16 + (knownPoints.isEmpty() ? 0 : 16 * sourceRows());
+        return tab == Tab.OVERVIEW || tab == Tab.STATISTICS ? 16 : 0;
+    }
+
+    private List<PointMeta> knownPoints = List.of();
+
+    private String sourceLabel(PointMeta m) {
+        String dim = m.dimension().contains(":") ? m.dimension().substring(m.dimension().indexOf(':') + 1) : m.dimension();
+        return dim + " " + m.x() + "," + m.y() + "," + m.z();
+    }
+
+    private int sourceChipWidth(PointMeta m) { return font.width(sourceLabel(m)) + 28; }
+
+    private int sourceRows() {
+        int rows = 1, x = 12 + font.width("Sources:") + 6;
+        for (PointMeta m : knownPoints) {
+            int w = sourceChipWidth(m);
+            if (x + w > width - 12) { rows++; x = 12; }
+            x += w + 4;
+        }
+        return rows;
+    }
+
+    /** Clickable chips, one per measurement point: several can be active, their items share the chart. */
+    private void renderSources(GuiGraphics g, int mx, int my) {
+        if (knownPoints.isEmpty()) return;
+        int y = 62, x = 12;
+        g.drawString(font, "Sources:", x, y + 4, 0xFFFFD27F);
+        x += font.width("Sources:") + 6;
+        List<String> sel = selectedIds();
+        for (PointMeta m : knownPoints) {
+            int w = sourceChipWidth(m);
+            if (x + w > width - 12) { x = 12; y += 16; }
+            boolean on = sel.contains(m.id());
+            drawChip(g, x, y, w, mx, my, on);
+            g.fill(x + 4, y + 3, x + 12, y + 11, 0xFF000000);
+            g.fill(x + 5, y + 4, x + 11, y + 10, on ? 0xFF55FF55 : 0xFF333333);
+            g.drawString(font, sourceLabel(m), x + 16, y + 4, on ? 0xFFEEEEEE : 0xFF888888);
+            pointHits.add(new Object[]{x, y, x + w, y + 14, m.id()});
+            x += w + 4;
+        }
+    }
+
 
     private void requestSoon() { lastRequest = 0; }
 
     private void sendRequest() {
         lastRequest = System.currentTimeMillis();
-        PacketDistributor.sendToServer(new HistoryRequestPayload(selected, vFrom, vTo, 400, !pointsKnown || tab == Tab.LINKS));
+        PacketDistributor.sendToServer(new HistoryRequestPayload(selected, vFrom, vTo, 400, !pointsKnown || tab == Tab.LINKS || tab == Tab.CHARTS));
     }
 
     @Override
@@ -137,6 +180,7 @@ public class AnalyticsScreen extends Screen {
         HistoryResponsePayload d = ClientHooks.latest;
         if (d != null && d.hasPoints()) {
             pointsKnown = true;
+            knownPoints = d.points();
             if (selected.isEmpty() && !d.selected().isEmpty()) selected = d.selected();
         }
     }
@@ -207,6 +251,7 @@ public class AnalyticsScreen extends Screen {
         chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 24);
         chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
         legendItems = d.items();
+        renderSources(g, mx, my);
         int lx = 12, ly = chart.y + chart.h + 6;
         // "All" / "None" chips first, then one checkbox chip per item.
         String[] bulk = {"All", "None"};

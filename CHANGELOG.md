@@ -4,6 +4,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-03
+### Geändert
+- Quellenauswahl direkt im Tab Charts: Zeile **Sources** mit anklickbaren Kästchen je Messpunkt (grün = im Diagramm). Kein Wechsel in den Tab Links mehr nötig.
+
 ## [1.1.0] - 2026-11-03
 ### Hinzugefügt
 - **Mehrere Messpunkte in einem Diagramm:** Im Tab Links lassen sich bis zu 8 Quellen per Klick an-/abwählen (z. B. Gold aus Quelle A und Holz aus Quelle B). Gleiche Items aus verschiedenen Quellen werden addiert, verschiedene bleiben getrennte Linien. Live-Daten nur, wenn jeder Punkt welche hat. Protokoll: `pointId` darf mehrere IDs mit `|` enthalten (Server prüft und begrenzt).
