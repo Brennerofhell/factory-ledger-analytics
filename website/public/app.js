@@ -53,7 +53,13 @@
     const byId = new Map(points.map(p => [p.id, p]));
     checklist($('points'), ids, state.points, id => label(byId.get(id)), null, s => { state.points = s; save(); refresh(); });
     const last = Math.max(0, ...points.map(p => p.lastSeen));
-    $('status').textContent = last ? `Letzter Empfang: ${Math.max(0, r.serverNow - last)} s her` : 'Noch keine Daten empfangen';
+    const age = Math.max(0, r.serverNow - last);
+    const st = $('status');
+    if (!last) { st.textContent = 'Noch keine Daten empfangen'; st.className = 'warn'; }
+    else {
+      st.textContent = `Letzter Empfang: ${age > 120 ? Math.round(age / 60) + ' min' : age + ' s'} her` + (age > 300 ? ' – der Server sendet nicht mehr?' : '');
+      st.className = age > 300 ? 'warn' : '';
+    }
   }
   async function refresh() {
     await loadPoints();

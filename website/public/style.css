@@ -26,6 +26,7 @@ canvas { width:100%; height:auto; display:block; }
 #stats i { width:10px; height:10px; border-radius:2px; display:inline-block; margin-right:6px; }
 #csv { margin-top:10px; }
 #status { color:var(--muted); font-size:12px; }
+#status.warn { color:#ff6b6b; font-weight:600; }
 body.login { display:grid; place-items:center; min-height:100vh; }
 body.login form { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:24px; width:min(340px,90vw); display:grid; gap:12px; }
 body.login h1 { font-size:18px; margin:0; }

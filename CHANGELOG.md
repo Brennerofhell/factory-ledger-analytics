@@ -4,6 +4,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 ### Website (`website/`)
+- Dashboard-Statuszeile wird rot, wenn länger als 5 Minuten kein Push ankam (bzw. noch nie einer).
 - Dashboard: runde Achsenwerte (1, 2, 5 × 10ⁿ) mit der Nulllinie auf einer Rasterlinie; Tabelle unter dem Diagramm (Letzter Wert, Min, Ø, Max, gemessene Minuten je Item); Knopf **CSV herunterladen** (Formelzeichen am Zellenanfang werden entschärft).
 - `website/tools/seed-demo.js`: lokale Demo mit künstlichen Daten (3 Quellen, Ausfall von 20 Minuten) zum Ansehen des Dashboards ohne Minecraft.
 - Im Browser mit der Demo geprüft: mehrere Quellen im selben Diagramm, gleiche Items addiert, Ausfall erscheint als Lücke, Achsen und Tabelle.
