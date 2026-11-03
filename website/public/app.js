@@ -66,6 +66,13 @@
     save();
     data = await api('series', { from, to, points: state.points.join('|'), items: state.items.join('|') });
     draw();
+    renderStats();
+  }
+
+  function niceStep(raw) {
+    const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / pow;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * pow;
   }
 
   function draw() {
@@ -80,15 +87,18 @@
     let min = 0, max = 0, any = false;
     for (const s of series) for (const v of s[key]) if (v != null) { min = Math.min(min, v); max = Math.max(max, v); any = true; }
     if (!any) { ctx.fillStyle = text; ctx.fillText('Keine Daten im gewählten Zeitraum', L + 20, H / 2); return; }
-    if (max === min) max = min + 1;
-    const pad = (max - min) * 0.08; max += pad; if (min < 0) min -= pad;
+    // round axis values (1, 2, 5 x 10^n) and always include 0, so the zero line sits on a grid line
+    const step = niceStep((Math.max(max, 0) - Math.min(min, 0) || 1) / 4);
+    min = Math.floor(Math.min(min, 0) / step) * step;
+    max = Math.ceil(Math.max(max, 0) / step) * step;
+    if (max === min) max = min + step;
     const x = t => L + (t - data.from) / (data.to - data.from) * (W - L - R);
     const y = v => T + (1 - (v - min) / (max - min)) * (H - T - B);
     ctx.strokeStyle = line; ctx.fillStyle = text; ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const v = min + (max - min) * i / 4, py = y(v);
+    for (let v = min; v <= max + step / 2; v += step) {
+      const py = y(v);
       ctx.beginPath(); ctx.moveTo(L, py); ctx.lineTo(W - R, py); ctx.stroke();
-      ctx.fillText(fmt(v), 6, py + 4);
+      ctx.fillText(fmt(Math.abs(v) < step / 1e6 ? 0 : v), 6, py + 4);
     }
     for (let i = 0; i <= 4; i++) {
       const t = data.from + (data.to - data.from) * i / 4;
@@ -114,6 +124,41 @@
     canvas._geo = { L, R, W, H, min, max, key, series };
   }
 
+  function stats(s, key) {
+    const v = s[key].filter(x => x != null);
+    if (!v.length) return null;
+    return { last: v[v.length - 1], min: Math.min(...v), avg: v.reduce((a, b) => a + b, 0) / v.length, max: Math.max(...v), n: v.length };
+  }
+  function renderStats() {
+    const body = document.querySelector('#stats tbody'); body.textContent = '';
+    if (!data) return;
+    const key = $('metric').value;
+    for (const s of data.series.filter(x => state.items.includes(x.item))) {
+      const st = stats(s, key);
+      const tr = document.createElement('tr');
+      const name = document.createElement('td');
+      const sw = document.createElement('i'); sw.style.background = COLORS[items.indexOf(s.item) % COLORS.length];
+      name.appendChild(sw); name.appendChild(document.createTextNode(pretty(s.item)));
+      tr.appendChild(name);
+      const cells = st ? [st.last, st.min, st.avg, st.max] : [null, null, null, null];
+      for (const c of cells) { const td = document.createElement('td'); td.textContent = fmt(c); tr.appendChild(td); }
+      const n = document.createElement('td');
+      n.textContent = st ? Math.round(st.n * data.bucketSec / 60).toLocaleString('de') : '0';
+      tr.appendChild(n);
+      body.appendChild(tr);
+    }
+  }
+  // CSV of what the chart shows; leading = + - @ are neutralised so spreadsheets never run a value as a formula
+  function csvCell(v) { const t = String(v ?? ''); return '"' + (/^[=+\-@]/.test(t) ? "'" + t : t).replace(/"/g, '""') + '"'; }
+  $('csv').onclick = () => {
+    if (!data) return;
+    const rows = [['zeit_iso', 'item', 'net_pro_min', 'in_pro_min', 'out_pro_min', 'bestand']];
+    for (const s of data.series) s.t.forEach((t, i) => rows.push([new Date(t * 1000).toISOString(), s.item, s.netPm[i], s.inPm[i], s.outPm[i], s.stock[i]]));
+    const blob = new Blob([rows.map(r => r.map(csvCell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'factory-ledger-analytics.csv';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  };
+
   canvas.addEventListener('mousemove', e => {
     const g = canvas._geo; if (!g || !data) return;
     const rect = canvas.getBoundingClientRect(), sx = canvas.width / rect.width;
@@ -132,7 +177,7 @@
   canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
 
   $('metric').value = state.metric;
-  $('metric').onchange = () => { state.metric = $('metric').value; save(); draw(); };
+  $('metric').onchange = () => { state.metric = $('metric').value; save(); draw(); renderStats(); };
   renderRanges();
   refresh().catch(() => {});
   setInterval(() => refresh().catch(() => {}), 30000);

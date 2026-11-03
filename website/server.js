@@ -109,7 +109,7 @@ ${msg ? `<p class="err">${msg}</p>` : ''}
 <main><aside><div id="ranges"></div><h2>Quellen</h2><div id="points"></div><h2>Items</h2><div id="items"></div>
 <h2>Größe</h2><select id="metric"><option value="netPm">Net / min</option><option value="inPm">In / min</option><option value="outPm">Out / min</option><option value="stock">Bestand</option></select>
 <p class="note">Werte sind Bestandsänderungen, keine Brutto-Produktion. Lücken = nicht gemessen.</p></aside>
-<section><canvas id="chart" width="1000" height="520"></canvas><div id="tip"></div></section></main>
+<section><canvas id="chart" width="1000" height="520"></canvas><div id="tip"></div><table id="stats"><thead><tr><th>Item</th><th>Letzter Wert</th><th>Min</th><th>Ø</th><th>Max</th><th>Gemessene Minuten</th></tr></thead><tbody></tbody></table><button id="csv" type="button">CSV herunterladen</button></section></main>
 <script src="${cfg.base}/app.js"></script></body></html>`;
 
   async function handle(req, res) {

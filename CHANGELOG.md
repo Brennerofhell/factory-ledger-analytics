@@ -3,6 +3,10 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Website (`website/`)
+- Dashboard: runde Achsenwerte (1, 2, 5 × 10ⁿ) mit der Nulllinie auf einer Rasterlinie; Tabelle unter dem Diagramm (Letzter Wert, Min, Ø, Max, gemessene Minuten je Item); Knopf **CSV herunterladen** (Formelzeichen am Zellenanfang werden entschärft).
+- `website/tools/seed-demo.js`: lokale Demo mit künstlichen Daten (3 Quellen, Ausfall von 20 Minuten) zum Ansehen des Dashboards ohne Minecraft.
+- Im Browser mit der Demo geprüft: mehrere Quellen im selben Diagramm, gleiche Items addiert, Ausfall erscheint als Lücke, Achsen und Tabelle.
 ### Dokumentation
 - Neu: `docs/WEBSITE-BETRIEB.md` (Aufbau, Serverobjekte, Aktualisieren, Sichern, Fehlersuche, Sicherheit). README, Architektur, Bedienung und Konfiguration verweisen darauf; Teststand und Website-Abschnitt aktualisiert.
 
