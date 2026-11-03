@@ -89,10 +89,9 @@ public final class HistoryService {
             synchronized (p) {
                 out.add(new dev.flanalytics.network.PointMeta(p.id, p.dimension, p.x, p.y, p.z, p.mode, p.lastSampleMillis));
             }
-            if (out.size() >= 256) break;
         }
         out.sort(java.util.Comparator.comparing(dev.flanalytics.network.PointMeta::id));
-        return out;
+        return out.size() > 256 ? new ArrayList<>(out.subList(0, 256)) : out;
     }
 
     public PointHistory point(String id) {

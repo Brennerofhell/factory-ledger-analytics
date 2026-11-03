@@ -4,6 +4,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-11-03
+### Behoben (Code-Review)
+- #1 Rate-Limit: abgelehnte Anfragen verlängern die Sperre nicht mehr (Diagramm fror beim Zoomen/Ziehen ein); Mindestabstand 120 ms; Einträge werden aufgeräumt.
+- #3 Messpunkte, die ~5 Minuten nicht gesehen wurden, werden vergessen (kein Blockieren des 256er-Limits durch verwaiste Punkte).
+- #7 Push: ungültige URL beendet die Schleife nicht mehr still; Backoff verkürzt den eingestellten Abstand nie.
+- #9 Punkteliste wird erst sortiert, dann auf 256 gekürzt.
+- #10 Das Fenster öffnet sich nur noch für eine Anfrage der letzten 5 Sekunden (kein unerwartetes Öffnen nach abgelehnter Anfrage).
+
 ## [1.1.2] - 2026-11-03
 ### Behoben
 - Auswahl (Quellen, ausgeblendete Items, Zeitbereich, Typ, Einheit) bleibt jetzt erhalten: nach Schließen des Fensters, Verlassen der Welt und Neustart (`config/factoryledgeranalytics-ui.properties`, nur Client).

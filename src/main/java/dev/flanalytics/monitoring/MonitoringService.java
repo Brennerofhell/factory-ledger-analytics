@@ -115,6 +115,8 @@ public final class MonitoringService {
         for (Point p : points.values()) {
             if (p.lastSeenSample != sampleRound) p.tracker.markGap(); // ledger/chunk not ticking: honest gap
         }
+        // forget points that were not seen for ~5 minutes of rounds (removed links); a returning point just starts a new baseline
+        points.values().removeIf(p -> sampleRound - p.lastSeenSample > 300);
     }
 
     private void sampleLevel(ServerLevel level, int interval) {

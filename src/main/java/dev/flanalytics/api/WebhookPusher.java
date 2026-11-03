@@ -58,7 +58,7 @@ public final class WebhookPusher {
         long next = AnalyticsConfig.PUSH_INTERVAL_SECONDS.get();
         try {
             URI uri = target();
-            if (uri == null) return;
+            if (uri == null) { schedule(next); return; }
             long now = System.currentTimeMillis();
             String body = GSON.toJson(ApiSnapshot.build(FactoryLedgerAnalytics.MONITORING.recentSamples(), now, 5 * 60_000L));
             String ts = Long.toString(now);
@@ -73,7 +73,7 @@ public final class WebhookPusher {
         } catch (Exception e) {
             failures++;
             if (failures == 1 || failures % 20 == 0) FactoryLedgerAnalytics.LOGGER.warn("Push failed ({}x): {}", failures, e.toString());
-            next = Math.min(600, next * (1L << Math.min(failures, 5))); // exponential backoff, max 10 min
+            next = Math.max(next, Math.min(600, next * (1L << Math.min(failures, 5)))); // exponential backoff, max 10 min
         }
         schedule(next);
     }

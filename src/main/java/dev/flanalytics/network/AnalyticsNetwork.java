@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /** Payload registration and the server-side handlers (permission check, rate limit, validation). */
 public final class AnalyticsNetwork {
-    private static final long MIN_REQUEST_GAP_MS = 400;
+    private static final long MIN_REQUEST_GAP_MS = 120;
     private static final Map<UUID, Long> LAST_REQUEST = new ConcurrentHashMap<>();
 
     private AnalyticsNetwork() {}
@@ -33,8 +33,10 @@ public final class AnalyticsNetwork {
         if (!(ctx.player() instanceof ServerPlayer player)) return;
         if (!player.hasPermissions(AnalyticsConfig.GUI_PERMISSION_LEVEL.get())) return;
         long now = System.currentTimeMillis();
-        Long last = LAST_REQUEST.put(player.getUUID(), now);
-        if (last != null && now - last < MIN_REQUEST_GAP_MS) return;
+        Long last = LAST_REQUEST.get(player.getUUID());
+        if (last != null && now - last < MIN_REQUEST_GAP_MS) return; // dropped requests do not extend the block
+        LAST_REQUEST.put(player.getUUID(), now);
+        if (LAST_REQUEST.size() > 64) LAST_REQUEST.values().removeIf(t -> now - t > 60_000L);
         ctx.reply(buildResponse(p, now));
     }
 

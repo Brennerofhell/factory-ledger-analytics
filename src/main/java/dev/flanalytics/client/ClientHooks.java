@@ -9,6 +9,7 @@ public final class ClientHooks {
     /** Latest answer from the server; read by the screen every frame. */
     public static volatile HistoryResponsePayload latest;
     public static volatile boolean openRequested;
+    private static volatile long openRequestedAt;
 
     private ClientHooks() {}
 
@@ -16,6 +17,7 @@ public final class ClientHooks {
     public static void requestOpen() {
         UiState.load();
         openRequested = true;
+        openRequestedAt = System.currentTimeMillis();
         long now = System.currentTimeMillis();
         net.neoforged.neoforge.network.PacketDistributor.sendToServer(
                 new dev.flanalytics.network.HistoryRequestPayload(UiState.selected, now - 3_600_000L, now, 300, true));
@@ -24,9 +26,11 @@ public final class ClientHooks {
     public static void onResponse(HistoryResponsePayload p) {
         latest = p;
         Minecraft mc = Minecraft.getInstance();
-        if (openRequested) {
+        if (openRequested && System.currentTimeMillis() - openRequestedAt < 5000L) {
             openRequested = false;
             mc.setScreen(new AnalyticsScreen());
+        } else if (openRequested) { // server denied / never answered: forget the stale request
+            openRequested = false;
         }
     }
 }
