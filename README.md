@@ -1,5 +1,11 @@
 # Factory Ledger Analytics
 
+[![Download](https://img.shields.io/github/v/release/Brennerofhell/factory-ledger-analytics?label=Download&style=for-the-badge&color=2ea44f)](https://github.com/Brennerofhell/factory-ledger-analytics/releases/latest)
+[![Alle Versionen](https://img.shields.io/badge/Alle_Versionen-Releases-blue?style=for-the-badge)](https://github.com/Brennerofhell/factory-ledger-analytics/releases)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-yellow?style=for-the-badge)](LICENSE)
+![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-62b47a?style=for-the-badge)
+![NeoForge](https://img.shields.io/badge/NeoForge-21.1.x-e68c1e?style=for-the-badge)
+
 NeoForge-Addon für **Create: Factory Ledger** (Minecraft 1.21.1, NeoForge 21.1.x, Java 21):
 Langzeit-Historie, Diagramme, Offline-Aufzeichnung, Export und eine optionale Web-Schnittstelle.
 Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR ohne Mixins.
@@ -35,9 +41,10 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 - Bekannte Fehler aus dem Code-Review: [docs/BEKANNTE-PROBLEME.md](docs/BEKANNTE-PROBLEME.md).
 
 ## Installation (Kurzfassung)
-1. `factory-ledger-analytics-<Version>.jar` in den `mods`-Ordner (Einzelspieler: Instanz; Server: Server **und** Clients).
-2. Factory Ledger, Create 6.x und NeoForge 21.1.219+ müssen vorhanden sein, Storage Drawers ist optional.
-3. Spiel/Server starten, im Spiel `K` drücken. Details: [docs/BEDIENUNG.md](docs/BEDIENUNG.md).
+1. **[JAR herunterladen](https://github.com/Brennerofhell/factory-ledger-analytics/releases/latest)** (Datei `factory-ledger-analytics-<Version>.jar` unter *Assets*).
+2. `factory-ledger-analytics-<Version>.jar` in den `mods`-Ordner (Einzelspieler: Instanz; Server: Server **und** Clients).
+3. Factory Ledger, Create 6.x und NeoForge 21.1.219+ müssen vorhanden sein, Storage Drawers ist optional.
+4. Spiel/Server starten, im Spiel `K` drücken. Details: [docs/BEDIENUNG.md](docs/BEDIENUNG.md).
 
 ## Getestete Versionen (ehrlich)
 | Was | Stand |
