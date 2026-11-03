@@ -48,3 +48,23 @@ Quelle: `factoryledger-1.5.0.jar` (76 893 Bytes), analysiert mit `javap -p -c` (
 1. Erlaubnis oder Klarstellung zur Lizenz beim Autor (für compileOnly-Abhängigkeit unkritisch, Mixins kritisch).
 2. Drawer-Mod-JAR (Compacting Drawers) + Create-JAR aus dem Modpack.
 3. Welche Messpunkte nutzt deine Tuff-Farm (Belt oder Inventar/Drawer)?
+
+---
+
+# Ergänzung: Storage Drawers 13.11.4 (Compacting Drawers)
+
+Quelle: `StorageDrawers-neoforge-1.21.1-13.11.4.jar`, **Lizenz MIT** (compileOnly und Nutzung der API unkritisch). Compacting Drawers sind Teil dieser Mod (`BlockCompDrawers`, `BlockEntityDrawersComp`, Container `ContainerDrawersComp2/3`).
+
+## Funde
+- `config.CompTierRegistry.INSTANCE` (public): `findHigherTier(ItemStack)` / `findLowerTier(ItemStack)` liefern `Record(upper, lower, convRate)`. Regeln kommen aus Config (`ModCommonConfig$Drawers$Compacting.compRules`, `enableExtraCompactingRules`) und mehr über `register(...)`. Das `convRate` ist je Regel gespeichert, **nicht pauschal 9**.
+- `util.CompactingHelper(Level).findHigherTier/ findLowerTier(ItemStack)` -> `Result(stack, size)`: leitet Stufen **aus den tatsächlich geladenen Crafting-Rezepten** ab (`findAllMatchingRecipes(CraftingContainer)`). Das ist die Quelle für "tatsächliche Mod-Rezepte".
+- `capabilities.DrawerItemHandler implements api.capabilities.IItemHandler` (Drawers-eigene Variante, nicht `net.neoforged...IItemHandler`!), mit `slotIsVirtual(int)`. Zusätzlich `IItemRepository` (`getAllItems()` -> `ItemRecord`, `getStoredItemCount(ItemStack)`), exponiert über `capabilities.Capabilities.ITEM_REPOSITORY / ITEM_HANDLER / DRAWER_GROUP` (`ChameleonCapability`).
+- `BlockEntityDrawersComp` hat 2 oder 3 Slots (`Slot2`, `Slot3`), die dieselbe Materialkette als Stufen darstellen (z. B. Nugget/Barren/Block) mit **abgeleiteten Zählern**.
+
+## Konsequenz für Factory Ledger
+Factory Ledger liest über `net.neoforged...IItemHandler` per `getStackInSlot` alle Slots. Bei Compacting Drawers (virtuelle Slots mit abgeleiteten Mengen) wird dieselbe Materialmenge in mehreren Formen sichtbar. Beim Ein-/Auslagern von z. B. 1 Barren ändern sich mehrere Slots gleichzeitig (Barren, Nuggets, Block-Anteil) -> **Doppelzählung** im Originalmod. Das Addon muss deshalb Items per `CompTierRegistry`/`CompactingHelper` auf eine **Basiseinheit** normalisieren (kleinste Stufe der Kette) und Slot-Änderungen einer Kette zu **einem** Netto-Delta zusammenfassen.
+
+## Normalisierungsdesign
+- Kettenaufbau lazy: Item -> `findLowerTier` bis Ende (Basis), Faktoren multiplizieren; Zyklenschutz; Cache pro Item, invalidiert bei `RecipesUpdatedEvent`/Config-Reload.
+- Wert in Basiseinheiten (long). Darstellung wahlweise in Basis/Mittel/Top-Stufe, Division mit dem tatsächlichen Produkt der `convRate`.
+- Offen für In-Game-Verifikation: ob der NeoForge-`IItemHandler`-Capability der Drawers die drei Stufen als echte Slots ausgibt (JAR zeigt `slotIsVirtual`, aber nicht, welche Capability Factory Ledger tatsächlich bekommt).
