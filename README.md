@@ -20,6 +20,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 | [docs/KONFIGURATION.md](docs/KONFIGURATION.md) | Alle Config-Einträge |
 | [docs/API.md](docs/API.md) | Website-Schnittstelle (Push / HTTP) |
 | [website/README.md](website/README.md) | Fertiger Empfänger und Dashboard für die Website (Node, Docker, Caddy) |
+| [docs/WEBSITE-BETRIEB.md](docs/WEBSITE-BETRIEB.md) | Betrieb der Website-Anbindung: was auf dem Server liegt, Aktualisieren, Sichern, Fehlersuche, Sicherheit |
 | [docs/ANALYSE.md](docs/ANALYSE.md) | Technischer Analysebericht zu Factory Ledger und Storage Drawers |
 | [docs/BEKANNTE-PROBLEME.md](docs/BEKANNTE-PROBLEME.md) | Offene Fehler und Grenzen (Ergebnis des Code-Reviews) |
 | [docs/VERSIONING.md](docs/VERSIONING.md) | Versionierung und Release-Ablauf |
@@ -54,6 +55,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 | Kompiliert gegen | Minecraft 1.21.1, NeoForge 21.1.219, Factory Ledger JAR `factoryledger-1.5.0.jar` (Metadaten melden `1.0.0`), Storage Drawers 13.11.4 |
 | Create | **nicht** eingebunden/getestet (JAR fehlte) |
 | Gradle-Build + 43 Unit-Tests | grün (Java 21, Gradle 9.2.1) |
+| Website-Empfänger (`website/`) | 6 Tests (Node 24) grün; Ende-zu-Ende mit dem echten Java-Code der Mod (`PushHttp`): richtiges Secret `204`, falsches `401`; auf dem Server aus dem Internet erreichbar (Health, Login, signierter Push). **Noch kein echter Push von Minecraft empfangen** |
 | Im Spiel bestätigt | Mod lädt (Einzelspieler und Mehrspieler-Server), Taste `K`, Diagramm mit Live-Daten, Messung eines Compacting Drawers, Einheit Barren, mehrere Quellen in einem Diagramm |
 | **Nicht im Spiel getestet** | Mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle, Button im Ledger-Fenster (fehlte auf der Testinstanz, siehe Bekannte Probleme), gemerkte Auswahl über Neustart |
 

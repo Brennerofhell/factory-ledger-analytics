@@ -3,6 +3,8 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Dokumentation
+- Neu: `docs/WEBSITE-BETRIEB.md` (Aufbau, Serverobjekte, Aktualisieren, Sichern, Fehlersuche, Sicherheit). README, Architektur, Bedienung und Konfiguration verweisen darauf; Teststand und Website-Abschnitt aktualisiert.
 
 ## [1.1.6] - 2026-11-03
 ### Behoben (Code-Review)

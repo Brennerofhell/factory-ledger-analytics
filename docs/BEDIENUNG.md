@@ -65,6 +65,9 @@ Es gibt zwei Ebenen: **Quellen** (welche Inventare) und **Items** (welche Linien
 | `NORMALIZED` (Standard) | Die Kette wird in die kleinste Einheit umgerechnet, Anzeigeeinheit wählbar |
 Beim Moduswechsel beginnt eine neue Basislinie; alte und neue Werte werden nicht vermischt.
 
+## Website (optional)
+Die Mod kann ihre Messwerte an eine eigene Website senden (Push); ein fertiger Empfänger mit Dashboard liegt in `website/`. Einrichtung und Betrieb: [WEBSITE-BETRIEB.md](WEBSITE-BETRIEB.md), Datenformat: [API.md](API.md). Aus dem Spiel heraus musst du dafür nichts tun; die Einstellungen stehen in der Server-Config im Abschnitt `[push]`. Das Dashboard bietet dieselbe Auswahl wie das Spielfenster (Quellen, Items, Zeiträume) und zeigt Lücken als "nicht gemessen".
+
 ## Befehle (Operatoren; im Einzelspieler müssen Cheats an sein)
 | Befehl | Wirkung |
 |---|---|

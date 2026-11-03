@@ -43,7 +43,7 @@ Datei: `config/factoryledgeranalytics-common.toml` (wird beim ersten Start erzeu
 | `secret` | leer | HMAC-Schlüssel, mindestens 16 Zeichen |
 | `intervalSeconds` | 30 | Abstand der Sendungen (5–3600) |
 
-Format und Prüfung der Website-Seite: [API.md](API.md).
+Format und Prüfung der Website-Seite: [API.md](API.md). Einrichtung mit fertigem Empfänger: [WEBSITE-BETRIEB.md](WEBSITE-BETRIEB.md). Hinweis: `url` muss mit `https://` beginnen (oder `http://localhost`), `secret` mindestens 16 Zeichen und identisch zu `FLA_SECRET` auf der Empfängerseite.
 
 ## Client-Datei (kein Config-Eintrag)
 `config/factoryledgeranalytics-ui.properties` merkt sich die Fensterauswahl (Quellen, ausgeblendete Items, Zeitbereich, Diagrammtyp, Größe, Einheit, Panels). Wird vom Client beim Schließen des Fensters geschrieben, gilt nur lokal; Datei löschen setzt alles zurück.
