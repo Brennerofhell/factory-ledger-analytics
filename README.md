@@ -17,7 +17,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 ## Wichtige Einschränkungen (bitte lesen)
 - **Messwerte sind Bestandsänderungen (`STOCK_DELTA`), keine Brutto-Produktion.** Wird im selben Messintervall gleich viel ein- und ausgelagert, ist das unsichtbar. Das gilt für alle Inventar-/Drawer-Links.
 - **Förderband-Links** (BELT) von Factory Ledger werden noch **nicht** gemessen (Create-JAR zum Kompilieren fehlte).
-- Das Verhalten von Compacting Drawers (welche Slots Factory Ledger bzw. dieses Addon sieht) ist aus dem Code abgeleitet und **nicht im Spiel verifiziert**.
+- Compacting Drawers: Dass Factory Ledger sie dreifach zählt (Nugget/Barren/Block), ist per Spiel-Screenshot belegt (siehe docs/ANALYSE.md). Die Normalisierung des Addons selbst ist **noch nicht im Spiel verifiziert**.
 - Factory Ledger ist **All Rights Reserved**. Dieses Addon nutzt es nur als Kompilier-Abhängigkeit und liefert es nicht mit. Es verwendet keine Mixins.
 
 ## Installation

@@ -68,3 +68,9 @@ Factory Ledger liest über `net.neoforged...IItemHandler` per `getStackInSlot` a
 - Kettenaufbau lazy: Item -> `findLowerTier` bis Ende (Basis), Faktoren multiplizieren; Zyklenschutz; Cache pro Item, invalidiert bei `RecipesUpdatedEvent`/Config-Reload.
 - Wert in Basiseinheiten (long). Darstellung wahlweise in Basis/Mittel/Top-Stufe, Division mit dem tatsächlichen Produkt der `convRate`.
 - Offen für In-Game-Verifikation: ob der NeoForge-`IItemHandler`-Capability der Drawers die drei Stufen als echte Slots ausgibt (JAR zeigt `slotIsVirtual`, aber nicht, welche Capability Factory Ledger tatsächlich bekommt).
+
+## Beleg aus dem Spiel (2026-11-03, Factory Ledger Screenshot, 1 Link, "Last 1 min")
+Original-Anzeige für einen Compacting Drawer mit Eisen: Iron Nugget +2640/min, Iron Ingot +300/min, Block of Iron +30/min.
+Das ist eine einzige Menge in drei Formen (2640 Nuggets = 293 Barren = 32,6 Blöcke); das Original zählt sie dreifach.
+Damit ist belegt: Der NeoForge-`IItemHandler` eines Compacting Drawers liefert alle Stufen als Slots. Die Abweichung 300/30 statt 293/32,6 stammt von aufsummierten Rundungen der pro Stufe angezeigten Zählerwerte.
+Noch offen: die Messung des Addons selbst (erwartet im Modus NORMALIZED ca. 2640 Nuggets/min) wurde noch nicht im Spiel gesehen.
