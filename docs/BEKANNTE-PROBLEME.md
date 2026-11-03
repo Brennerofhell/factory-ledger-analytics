@@ -1,6 +1,6 @@
 # Bekannte Probleme und Grenzen
 
-Stand: Version 1.1.4. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt. Mit ✔ markierte Punkte (1, 3, 7, 9, 10) sind seit 1.1.3 behoben; offen sind 2, 4, 5, 6, 8.
+Stand: Version 1.1.5. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt. Mit ✔ markierte Punkte (1, 3, 7, 9, 10) sind seit 1.1.3 behoben; offen sind 2, 4, 5, 6, 8.
 
 ## Fehler aus dem Code-Review
 | # | Bereich | Problem | Auswirkung |
@@ -22,6 +22,7 @@ Stand: Version 1.1.4. Quelle der Fehler: automatischer Code-Review am 2026-11-03
 - **Mehrere Messpunkte:** Nur im Spiel an einer Instanz mit mehreren Quellen gesehen, Live-Zusammenführung (Rundung auf das Messraster) nicht mit stark unterschiedlichen Intervallen getestet.
 - **Create-Förderbänder:** werden nicht gemessen (Create-JAR zum Kompilieren fehlte).
 - **Brutto-Produktion:** Inventar-Messungen sind Bestandsänderungen (`STOCK_DELTA`); gleichzeitiges Ein-/Auslagern im selben Intervall hebt sich auf.
+- **Website-Schnittstelle:** Pull- und Push-HTTP sind seit 1.1.5 per Test gegen lokale HTTP-Server geprüft (Auth, Rate-Limit, CORS, Signatur). Noch nicht geprüft: Betrieb in der laufenden Mod (Config, Threads, Hoster-Netzwerk, TLS zu einer echten Website).
 - **Nicht im Spiel getestet:** Dedicated Server/Mehrspieler, mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle.
 - **Version von Factory Ledger:** Dateiname sagt 1.5.0, Metadaten melden 1.0.0.
 - **Einzelspieler:** Gemessen wird nur, solange die Welt geöffnet ist. Zeiten mit geschlossenem Spiel erscheinen als Messlücke.

@@ -2,19 +2,13 @@ package dev.flanalytics.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import dev.flanalytics.FactoryLedgerAnalytics;
 import dev.flanalytics.config.AnalyticsConfig;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Optional read-only HTTP API (GET only). Disabled by default; refuses to start without a token.
@@ -26,8 +20,6 @@ public final class ApiServer {
 
     private HttpServer server;
     private ExecutorService pool;
-    private final AtomicLong windowStart = new AtomicLong();
-    private final AtomicLong windowCount = new AtomicLong();
 
     public synchronized void start() {
         if (server != null || !AnalyticsConfig.API_ENABLED.get()) return;
@@ -44,8 +36,11 @@ public final class ApiServer {
                 return t;
             });
             server.setExecutor(pool);
-            server.createContext("/api/v1/snapshot", this::handle);
-            server.createContext("/api/v1/health", this::handle);
+            ApiHandler handler = new ApiHandler(AnalyticsConfig.API_TOKEN::get, AnalyticsConfig.API_RATE_LIMIT_PER_MINUTE::get,
+                    AnalyticsConfig.API_ALLOWED_ORIGIN::get,
+                    () -> GSON.toJson(ApiSnapshot.build(FactoryLedgerAnalytics.MONITORING.recentSamples(), System.currentTimeMillis(), WINDOW_MS)));
+            server.createContext("/api/v1/snapshot", handler);
+            server.createContext("/api/v1/health", handler);
             server.start();
             FactoryLedgerAnalytics.LOGGER.info("Analytics API listening on {}:{}", AnalyticsConfig.API_BIND.get(), AnalyticsConfig.API_PORT.get());
         } catch (IOException | RuntimeException e) {
@@ -59,60 +54,5 @@ public final class ApiServer {
         if (pool != null) pool.shutdownNow();
         server = null;
         pool = null;
-    }
-
-    private void handle(HttpExchange ex) throws IOException {
-        try {
-            addCors(ex);
-            String method = ex.getRequestMethod();
-            if ("OPTIONS".equals(method)) { send(ex, 204, ""); return; }
-            if (!"GET".equals(method)) { send(ex, 405, error("method not allowed")); return; }
-            if (!authorized(ex)) { send(ex, 401, error("unauthorized")); return; }
-            if (!allowRequest()) { send(ex, 429, error("rate limit")); return; }
-            String path = ex.getRequestURI().getPath();
-            if (path.endsWith("/health")) { send(ex, 200, GSON.toJson(Map.of("status", "ok", "version", ApiSnapshot.VERSION))); return; }
-            long now = System.currentTimeMillis();
-            Map<String, Object> snap = ApiSnapshot.build(FactoryLedgerAnalytics.MONITORING.recentSamples(), now, WINDOW_MS);
-            send(ex, 200, GSON.toJson(snap));
-        } catch (RuntimeException e) {
-            send(ex, 500, error("internal error"));
-        } finally {
-            ex.close();
-        }
-    }
-
-    private boolean authorized(HttpExchange ex) {
-        String h = ex.getRequestHeaders().getFirst("Authorization");
-        if (h == null || !h.startsWith("Bearer ")) return false;
-        byte[] given = h.substring(7).getBytes(StandardCharsets.UTF_8);
-        byte[] want = AnalyticsConfig.API_TOKEN.get().getBytes(StandardCharsets.UTF_8);
-        return MessageDigest.isEqual(given, want); // constant time
-    }
-
-    private boolean allowRequest() {
-        long now = System.currentTimeMillis();
-        long start = windowStart.get();
-        if (now - start > 60_000 && windowStart.compareAndSet(start, now)) windowCount.set(0);
-        return windowCount.incrementAndGet() <= AnalyticsConfig.API_RATE_LIMIT_PER_MINUTE.get();
-    }
-
-    private void addCors(HttpExchange ex) {
-        String origin = AnalyticsConfig.API_ALLOWED_ORIGIN.get();
-        if (origin.isEmpty()) return;
-        ex.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
-        ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Authorization");
-        ex.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, OPTIONS");
-    }
-
-    private static String error(String msg) {
-        return GSON.toJson(Map.of("error", msg));
-    }
-
-    private static void send(HttpExchange ex, int code, String body) throws IOException {
-        byte[] b = body.getBytes(StandardCharsets.UTF_8);
-        ex.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        ex.getResponseHeaders().set("Cache-Control", "no-store");
-        ex.sendResponseHeaders(code, b.length == 0 ? -1 : b.length);
-        if (b.length > 0) try (OutputStream os = ex.getResponseBody()) { os.write(b); }
     }
 }

@@ -3,6 +3,12 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+
+## [1.1.5] - 2026-11-03
+### Geändert
+- Website-Schnittstelle: HTTP-Logik in `ApiHandler` (Pull) und `PushHttp` (Push) ausgelagert, Verhalten unverändert. Dadurch testbar ohne Minecraft.
+### Hinzugefügt
+- 7 Tests mit echten lokalen HTTP-Servern: Pull (401 ohne/mit falschem Token, 200, Health, 405, Rate-Limit 429, leeres Token, CORS) und Push (UTF-8-Body unverändert, Signatur und Zeitstempel von der Empfängerseite nachrechenbar, nur https bzw. http auf localhost).
 ### Dokumentation
 - Bedienung, Architektur, Konfiguration, README und Bekannte Probleme auf den Stand 1.1.4 gebracht (Quellenauswahl, Einheit „all“, Panels, gemerkte Auswahl, Fehlersuche).
 

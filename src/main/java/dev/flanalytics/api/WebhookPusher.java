@@ -61,15 +61,9 @@ public final class WebhookPusher {
             if (uri == null) { schedule(next); return; }
             long now = System.currentTimeMillis();
             String body = GSON.toJson(ApiSnapshot.build(FactoryLedgerAnalytics.MONITORING.recentSamples(), now, 5 * 60_000L));
-            String ts = Long.toString(now);
-            HttpRequest req = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(10))
-                    .header("Content-Type", "application/json")
-                    .header("X-FLA-Timestamp", ts)
-                    .header("X-FLA-Signature", Hmac.sign(AnalyticsConfig.PUSH_SECRET.get(), ts + "." + body))
-                    .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8)).build();
-            HttpResponse<Void> resp = client.send(req, HttpResponse.BodyHandlers.discarding());
-            if (resp.statusCode() / 100 == 2) failures = 0;
-            else throw new IllegalStateException("HTTP " + resp.statusCode());
+            int status = PushHttp.post(client, uri, AnalyticsConfig.PUSH_SECRET.get(), body, now);
+            if (status / 100 == 2) failures = 0;
+            else throw new IllegalStateException("HTTP " + status);
         } catch (Exception e) {
             failures++;
             if (failures == 1 || failures % 20 == 0) FactoryLedgerAnalytics.LOGGER.warn("Push failed ({}x): {}", failures, e.toString());
@@ -79,14 +73,6 @@ public final class WebhookPusher {
     }
 
     private static URI target() {
-        try {
-            URI u = URI.create(AnalyticsConfig.PUSH_URL.get().trim());
-            String host = u.getHost();
-            boolean local = "localhost".equals(host) || "127.0.0.1".equals(host);
-            if ("https".equals(u.getScheme()) || local && "http".equals(u.getScheme())) return u;
-        } catch (RuntimeException ignored) {
-        }
-        return null;
+        return PushHttp.parseTarget(AnalyticsConfig.PUSH_URL.get());
     }
-
 }

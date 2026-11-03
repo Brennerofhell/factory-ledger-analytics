@@ -53,4 +53,4 @@ monitoring.MonitoringService  (alle sampleIntervalTicks, auf dem Server-Thread)
 Server-Thread: Messung, Registry, Antworten auf Netzwerkanfragen (Rate-Limit pro Spieler: 120 ms, nur angenommene Anfragen zählen). Messpunkte, die ~5 Minuten nicht gesehen wurden, werden vergessen. Eigene Daemon-Threads: Historie-Schreiber (`fla-history-writer`), Export (`fla-export`), HTTP (`fla-api`), Push (`fla-push`). Gemeinsame Daten (`recent`, `PointHistory`) sind synchronisiert bzw. werden als Kopie weitergegeben.
 
 ## Tests
-34 Unit-Tests in `src/test`: Normalisierung (inkl. Nicht-9:1 und Zyklen), Drawer-Modi, Delta/Lücken, Aggregation und Retention, Speicherformat (Round-Trip, Beschädigung, unbekannte Version, Fallback auf `.bak`), Abfrage, Diagramm-Mathematik, Export, Zusammenführen mehrerer Messpunkte, API-Snapshot, HMAC.
+41 Unit-Tests in `src/test`: Normalisierung (inkl. Nicht-9:1 und Zyklen), Drawer-Modi, Delta/Lücken, Aggregation und Retention, Speicherformat (Round-Trip, Beschädigung, unbekannte Version, Fallback auf `.bak`), Abfrage, Diagramm-Mathematik, Export, Zusammenführen mehrerer Messpunkte, API-Snapshot, HMAC.

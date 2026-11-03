@@ -1,0 +1,332 @@
+{
+  "build.gradle": {
+    "mtime": 1793718612.607325,
+    "seen": 1793728125.8716278,
+    "ast_hash": "58f28b0a4f9cdbf197294afa1df5bec0",
+    "semantic_hash": "58f28b0a4f9cdbf197294afa1df5bec0"
+  },
+  "gradlew": {
+    "mtime": 1793718602.463289,
+    "seen": 1793728125.8716316,
+    "ast_hash": "780b1d3e23a3b82154795f73df943a14",
+    "semantic_hash": "780b1d3e23a3b82154795f73df943a14"
+  },
+  "settings.gradle": {
+    "mtime": 1793718574.846705,
+    "seen": 1793728125.8716333,
+    "ast_hash": "86968480ceef5dcf122eb66e9119a064",
+    "semantic_hash": "86968480ceef5dcf122eb66e9119a064"
+  },
+  "src/main/java/dev/flanalytics/FactoryLedgerAnalytics.java": {
+    "mtime": 1793721257.69125,
+    "seen": 1793728125.8716342,
+    "ast_hash": "97796454432dbf50b1c89ac49d09c832",
+    "semantic_hash": "97796454432dbf50b1c89ac49d09c832"
+  },
+  "src/main/java/dev/flanalytics/api/ApiServer.java": {
+    "mtime": 1793720262.8084476,
+    "seen": 1793728125.871635,
+    "ast_hash": "83c97ec024911e7c22b08796c8dfe2c0",
+    "semantic_hash": "83c97ec024911e7c22b08796c8dfe2c0"
+  },
+  "src/main/java/dev/flanalytics/api/ApiSnapshot.java": {
+    "mtime": 1793720262.7512505,
+    "seen": 1793728125.8716354,
+    "ast_hash": "7376faab6d292f38a4eafd1916689dd8",
+    "semantic_hash": "7376faab6d292f38a4eafd1916689dd8"
+  },
+  "src/main/java/dev/flanalytics/api/Hmac.java": {
+    "mtime": 1793720312.7406883,
+    "seen": 1793728125.8716362,
+    "ast_hash": "7dc04ca294effe2ffb67534d5d75f6b4",
+    "semantic_hash": "7dc04ca294effe2ffb67534d5d75f6b4"
+  },
+  "src/main/java/dev/flanalytics/api/WebhookPusher.java": {
+    "mtime": 1793727039.2795627,
+    "seen": 1793728125.8716366,
+    "ast_hash": "7d855767d3142fd2866b592b945f2c64",
+    "semantic_hash": "7d855767d3142fd2866b592b945f2c64"
+  },
+  "src/main/java/dev/flanalytics/client/ClientEvents.java": {
+    "mtime": 1793722160.2829077,
+    "seen": 1793728125.8716376,
+    "ast_hash": "8314d1a27200cfabdc4ceabc87e32526",
+    "semantic_hash": "8314d1a27200cfabdc4ceabc87e32526"
+  },
+  "src/main/java/dev/flanalytics/client/ClientHooks.java": {
+    "mtime": 1793727044.5398073,
+    "seen": 1793728125.871638,
+    "ast_hash": "cc8c0d8e5eca582defb807034acfd7f3",
+    "semantic_hash": "cc8c0d8e5eca582defb807034acfd7f3"
+  },
+  "src/main/java/dev/flanalytics/client/LedgerScreenIntegration.java": {
+    "mtime": 1793727367.7842424,
+    "seen": 1793728125.8716385,
+    "ast_hash": "adbb8fd46bf3ec9e1e0c1fc8ea7464bf",
+    "semantic_hash": "adbb8fd46bf3ec9e1e0c1fc8ea7464bf"
+  },
+  "src/main/java/dev/flanalytics/client/UiState.java": {
+    "mtime": 1793725947.5969896,
+    "seen": 1793728125.8716393,
+    "ast_hash": "149425b9c14a26231d75a4c2ffb73f8d",
+    "semantic_hash": "149425b9c14a26231d75a4c2ffb73f8d"
+  },
+  "src/main/java/dev/flanalytics/client/charts/ChartModel.java": {
+    "mtime": 1793722114.1701696,
+    "seen": 1793728125.8716397,
+    "ast_hash": "26cf298f3c72364fb5638455c0ca0bab",
+    "semantic_hash": "26cf298f3c72364fb5638455c0ca0bab"
+  },
+  "src/main/java/dev/flanalytics/client/charts/ChartWidget.java": {
+    "mtime": 1793722125.0929456,
+    "seen": 1793728125.8716407,
+    "ast_hash": "9c10b2f96bd409971fff297f6667e833",
+    "semantic_hash": "9c10b2f96bd409971fff297f6667e833"
+  },
+  "src/main/java/dev/flanalytics/client/gui/AnalyticsScreen.java": {
+    "mtime": 1793725966.144719,
+    "seen": 1793728125.8716412,
+    "ast_hash": "9ca9b130ba606e62b015b6959710fb2b",
+    "semantic_hash": "9ca9b130ba606e62b015b6959710fb2b"
+  },
+  "src/main/java/dev/flanalytics/config/AnalyticsConfig.java": {
+    "mtime": 1793721063.736772,
+    "seen": 1793728125.8716416,
+    "ast_hash": "d4a83b7f776556a900db9c353768f360",
+    "semantic_hash": "d4a83b7f776556a900db9c353768f360"
+  },
+  "src/main/java/dev/flanalytics/config/CompactingMode.java": {
+    "mtime": 1793718575.0059853,
+    "seen": 1793728125.8716424,
+    "ast_hash": "e74537ef35d33c9fd19cf551499f9d6e",
+    "semantic_hash": "e74537ef35d33c9fd19cf551499f9d6e"
+  },
+  "src/main/java/dev/flanalytics/history/Bucket.java": {
+    "mtime": 1793720768.7677479,
+    "seen": 1793728125.8716428,
+    "ast_hash": "46965e127040a7d64c1a4729a35a3ce0",
+    "semantic_hash": "46965e127040a7d64c1a4729a35a3ce0"
+  },
+  "src/main/java/dev/flanalytics/history/HistoryService.java": {
+    "mtime": 1793727039.278556,
+    "seen": 1793728125.8716433,
+    "ast_hash": "9695a941aa3042277b2807895dc36051",
+    "semantic_hash": "9695a941aa3042277b2807895dc36051"
+  },
+  "src/main/java/dev/flanalytics/history/PointHistory.java": {
+    "mtime": 1793721030.7630224,
+    "seen": 1793728125.8716443,
+    "ast_hash": "1325a8eccbfdcba411c5dad949690b01",
+    "semantic_hash": "1325a8eccbfdcba411c5dad949690b01"
+  },
+  "src/main/java/dev/flanalytics/integration/DrawersCompat.java": {
+    "mtime": 1793720229.7288384,
+    "seen": 1793728125.8716447,
+    "ast_hash": "1048bcc9fdb5cfe225c2787294b5fd22",
+    "semantic_hash": "1048bcc9fdb5cfe225c2787294b5fd22"
+  },
+  "src/main/java/dev/flanalytics/integration/LedgerRegistry.java": {
+    "mtime": 1793720229.6421819,
+    "seen": 1793728125.8716455,
+    "ast_hash": "5ecb724adb8e3178cfb24e490d9680e8",
+    "semantic_hash": "5ecb724adb8e3178cfb24e490d9680e8"
+  },
+  "src/main/java/dev/flanalytics/integration/McRuleSource.java": {
+    "mtime": 1793722661.4828577,
+    "seen": 1793728125.8716462,
+    "ast_hash": "37fb805d7fa303061876a229e505e9c1",
+    "semantic_hash": "37fb805d7fa303061876a229e505e9c1"
+  },
+  "src/main/java/dev/flanalytics/monitoring/ChainNormalizer.java": {
+    "mtime": 1793722101.4842207,
+    "seen": 1793728125.8716466,
+    "ast_hash": "da62210ed2e2694b68654827a73b3fc8",
+    "semantic_hash": "da62210ed2e2694b68654827a73b3fc8"
+  },
+  "src/main/java/dev/flanalytics/monitoring/DeltaTracker.java": {
+    "mtime": 1793720229.5464394,
+    "seen": 1793728125.8716476,
+    "ast_hash": "0730c96631e23d3cca147011e8b16145",
+    "semantic_hash": "0730c96631e23d3cca147011e8b16145"
+  },
+  "src/main/java/dev/flanalytics/monitoring/MeasurementSample.java": {
+    "mtime": 1793720229.591906,
+    "seen": 1793728125.871648,
+    "ast_hash": "9ea5350aaab12dc80acd5e981b3cc169",
+    "semantic_hash": "9ea5350aaab12dc80acd5e981b3cc169"
+  },
+  "src/main/java/dev/flanalytics/monitoring/MonitoringService.java": {
+    "mtime": 1793727039.2795627,
+    "seen": 1793728125.8716488,
+    "ast_hash": "f7cbfd20b673dc31afb45472b16a70a2",
+    "semantic_hash": "f7cbfd20b673dc31afb45472b16a70a2"
+  },
+  "src/main/java/dev/flanalytics/monitoring/StockSampler.java": {
+    "mtime": 1793720229.4895127,
+    "seen": 1793728125.8716493,
+    "ast_hash": "0a653df193b27b3537400ce62727563d",
+    "semantic_hash": "0a653df193b27b3537400ce62727563d"
+  },
+  "src/main/java/dev/flanalytics/network/AnalyticsNetwork.java": {
+    "mtime": 1793727039.278556,
+    "seen": 1793728125.8716497,
+    "ast_hash": "bb49d63fd42d3442b466ae774b856c2c",
+    "semantic_hash": "bb49d63fd42d3442b466ae774b856c2c"
+  },
+  "src/main/java/dev/flanalytics/network/ChartBucket.java": {
+    "mtime": 1793721030.6107247,
+    "seen": 1793728125.8716505,
+    "ast_hash": "38022a299df4716e8924c9d87f1cbbea",
+    "semantic_hash": "38022a299df4716e8924c9d87f1cbbea"
+  },
+  "src/main/java/dev/flanalytics/network/HistoryRequestPayload.java": {
+    "mtime": 1793724009.179866,
+    "seen": 1793728125.8716512,
+    "ast_hash": "5b86053340ce871d8baacef1337523dc",
+    "semantic_hash": "5b86053340ce871d8baacef1337523dc"
+  },
+  "src/main/java/dev/flanalytics/network/HistoryResponsePayload.java": {
+    "mtime": 1793724009.179866,
+    "seen": 1793728125.8716516,
+    "ast_hash": "aa3dd9d7b0ee0e247e4db66087644f53",
+    "semantic_hash": "aa3dd9d7b0ee0e247e4db66087644f53"
+  },
+  "src/main/java/dev/flanalytics/network/PointMeta.java": {
+    "mtime": 1793721030.6674435,
+    "seen": 1793728125.8716521,
+    "ast_hash": "7331f1b438f17f4f31e87cd50ee97d61",
+    "semantic_hash": "7331f1b438f17f4f31e87cd50ee97d61"
+  },
+  "src/main/java/dev/flanalytics/network/QueryService.java": {
+    "mtime": 1793724041.061885,
+    "seen": 1793728125.8716528,
+    "ast_hash": "89175e9be4378961984adde6b410a757",
+    "semantic_hash": "89175e9be4378961984adde6b410a757"
+  },
+  "src/main/java/dev/flanalytics/network/SetModePayload.java": {
+    "mtime": 1793721063.3582027,
+    "seen": 1793728125.8716533,
+    "ast_hash": "a8db9a36e5bdd15cc066a25228e6cbec",
+    "semantic_hash": "a8db9a36e5bdd15cc066a25228e6cbec"
+  },
+  "src/main/java/dev/flanalytics/network/TierDto.java": {
+    "mtime": 1793722101.7146,
+    "seen": 1793728125.8716538,
+    "ast_hash": "bec1ee298f8c188ad3a2ef04aebaa8a4",
+    "semantic_hash": "bec1ee298f8c188ad3a2ef04aebaa8a4"
+  },
+  "src/main/java/dev/flanalytics/storage/ExportService.java": {
+    "mtime": 1793722661.5633004,
+    "seen": 1793728125.8716547,
+    "ast_hash": "8d13a5de5048d6cf88e49c9023fbe259",
+    "semantic_hash": "8d13a5de5048d6cf88e49c9023fbe259"
+  },
+  "src/main/java/dev/flanalytics/storage/ExportWriter.java": {
+    "mtime": 1793721257.5548496,
+    "seen": 1793728125.8716555,
+    "ast_hash": "2e6b19c260af9d660294136aa3072c38",
+    "semantic_hash": "2e6b19c260af9d660294136aa3072c38"
+  },
+  "src/main/java/dev/flanalytics/storage/HistoryCodec.java": {
+    "mtime": 1793720768.9526806,
+    "seen": 1793728125.871656,
+    "ast_hash": "d37ca8261874b1a3ad1430b5c5a7748c",
+    "semantic_hash": "d37ca8261874b1a3ad1430b5c5a7748c"
+  },
+  "src/main/java/dev/flanalytics/storage/HistoryRepository.java": {
+    "mtime": 1793720769.010482,
+    "seen": 1793728125.8716567,
+    "ast_hash": "834f3d4b48a1d7a787fdba9f09f585f6",
+    "semantic_hash": "834f3d4b48a1d7a787fdba9f09f585f6"
+  },
+  "src/main/resources/assets/factoryledgeranalytics/lang/en_us.json": {
+    "mtime": 1793721165.7646046,
+    "seen": 1793728125.8716571,
+    "ast_hash": "8e2c6d888aca997c9378058a292252ce",
+    "semantic_hash": "8e2c6d888aca997c9378058a292252ce"
+  },
+  "src/test/java/dev/flanalytics/api/ApiSnapshotTest.java": {
+    "mtime": 1793720312.8663237,
+    "seen": 1793728125.871658,
+    "ast_hash": "c43f64d638c3a52dad97afbe6bcc4b22",
+    "semantic_hash": "c43f64d638c3a52dad97afbe6bcc4b22"
+  },
+  "src/test/java/dev/flanalytics/client/ChartAndQueryTest.java": {
+    "mtime": 1793724041.191919,
+    "seen": 1793728125.8716586,
+    "ast_hash": "9594deb3f1459861ace8f03a76b8e16e",
+    "semantic_hash": "9594deb3f1459861ace8f03a76b8e16e"
+  },
+  "src/test/java/dev/flanalytics/history/HistoryTest.java": {
+    "mtime": 1793720805.2255962,
+    "seen": 1793728125.8716595,
+    "ast_hash": "708cd24bbfb4e0276ae32f2d2f575a14",
+    "semantic_hash": "708cd24bbfb4e0276ae32f2d2f575a14"
+  },
+  "src/test/java/dev/flanalytics/monitoring/MonitoringCoreTest.java": {
+    "mtime": 1793722165.5904136,
+    "seen": 1793728125.8716602,
+    "ast_hash": "efc788aca8c30d1acc91d735d3759897",
+    "semantic_hash": "efc788aca8c30d1acc91d735d3759897"
+  },
+  "src/test/java/dev/flanalytics/storage/ExportWriterTest.java": {
+    "mtime": 1793721257.7275274,
+    "seen": 1793728125.8716607,
+    "ast_hash": "2b448f36b9d49fe3802d5ba91c1e465e",
+    "semantic_hash": "2b448f36b9d49fe3802d5ba91c1e465e"
+  },
+  "CHANGELOG.md": {
+    "mtime": 1793727697.1568449,
+    "seen": 1793728125.8716614,
+    "ast_hash": "f2d18c7babc949a2fde456345fa1483e",
+    "semantic_hash": "f2d18c7babc949a2fde456345fa1483e"
+  },
+  "README.md": {
+    "mtime": 1793727691.1916668,
+    "seen": 1793728125.8716621,
+    "ast_hash": "485f0a3c6f6440e33643206c814db367",
+    "semantic_hash": "485f0a3c6f6440e33643206c814db367"
+  },
+  "docs/ANALYSE.md": {
+    "mtime": 1793721770.8286877,
+    "seen": 1793728125.8716626,
+    "ast_hash": "012c1d170411a5826befcd8f64a99539",
+    "semantic_hash": "012c1d170411a5826befcd8f64a99539"
+  },
+  "docs/API.md": {
+    "mtime": 1793720332.419504,
+    "seen": 1793728125.8716633,
+    "ast_hash": "15c706fad8bf57c19de254943a53b001",
+    "semantic_hash": "15c706fad8bf57c19de254943a53b001"
+  },
+  "docs/ARCHITEKTUR.md": {
+    "mtime": 1793727691.1906695,
+    "seen": 1793728125.8716638,
+    "ast_hash": "f91507fddf84b628f6e9872b6493d398",
+    "semantic_hash": "f91507fddf84b628f6e9872b6493d398"
+  },
+  "docs/BEDIENUNG.md": {
+    "mtime": 1793727666.194503,
+    "seen": 1793728125.8716643,
+    "ast_hash": "76442f0c885cec18bcb38ba3032e4dea",
+    "semantic_hash": "76442f0c885cec18bcb38ba3032e4dea"
+  },
+  "docs/BEKANNTE-PROBLEME.md": {
+    "mtime": 1793727691.1906695,
+    "seen": 1793728125.8716652,
+    "ast_hash": "5cb1539664062c0616b30785399efb84",
+    "semantic_hash": "5cb1539664062c0616b30785399efb84"
+  },
+  "docs/KONFIGURATION.md": {
+    "mtime": 1793727691.1906695,
+    "seen": 1793728125.8716657,
+    "ast_hash": "31f9c57a5475cfd05c253b526c8b69c0",
+    "semantic_hash": "31f9c57a5475cfd05c253b526c8b69c0"
+  },
+  "docs/VERSIONING.md": {
+    "mtime": 1793722515.9564629,
+    "seen": 1793728125.8716662,
+    "ast_hash": "d02c694e43fc21d5d2f8dd2f8676d656",
+    "semantic_hash": "d02c694e43fc21d5d2f8dd2f8676d656"
+  }
+}
