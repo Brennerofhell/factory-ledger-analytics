@@ -1,6 +1,6 @@
 # Bekannte Probleme und Grenzen
 
-Stand: Version 1.1.3. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt. Mit ✔ markierte Punkte (1, 3, 7, 9, 10) sind seit 1.1.3 behoben; offen sind 2, 4, 5, 6, 8.
+Stand: Version 1.1.4. Quelle der Fehler: automatischer Code-Review am 2026-11-03. **Noch nicht behoben**, sofern nicht anders vermerkt. Mit ✔ markierte Punkte (1, 3, 7, 9, 10) sind seit 1.1.3 behoben; offen sind 2, 4, 5, 6, 8.
 
 ## Fehler aus dem Code-Review
 | # | Bereich | Problem | Auswirkung |

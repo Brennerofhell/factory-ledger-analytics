@@ -4,6 +4,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-11-03
+### Geändert
+- Button **Analytics** im Factory-Ledger-Fenster: robustere Erkennung der Tab-Leiste (Ausweichlösung: zweiter Button der linken Reihe); die gefundenen Buttons werden einmal ins Log geschrieben (`Factory Ledger screen buttons: ...`), bei Misserfolg steht eine Warnung im Log.
+
 ## [1.1.3] - 2026-11-03
 ### Behoben (Code-Review)
 - #1 Rate-Limit: abgelehnte Anfragen verlängern die Sperre nicht mehr (Diagramm fror beim Zoomen/Ziehen ein); Mindestabstand 120 ms; Einträge werden aufgeräumt.
