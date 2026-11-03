@@ -55,3 +55,6 @@ Die Unit-Tests decken die reine Logik ab (Normalisierung, Delta/Lücken, Aggrega
 ./gradlew build      # Ergebnis: build/libs/factory-ledger-analytics-<Version>.jar
 ```
 Die Fremd-JARs (Factory Ledger, Storage Drawers, später Create) gehören nach `libs/` und werden nicht eingecheckt. Fertige JARs jeder Version liegen lokal in `releases/` (nicht im Git).
+
+## Lizenz
+[MIT](LICENSE) für den Code dieses Addons. Die Fremd-Mods (Create: Factory Ledger – *All Rights Reserved*, Storage Drawers, Create) sind **nicht** Teil dieses Repositories und stehen unter ihren eigenen Lizenzen; sie liegen nur lokal in `libs/` zum Kompilieren und werden nicht weitergegeben.

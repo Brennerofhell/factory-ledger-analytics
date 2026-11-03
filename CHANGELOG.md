@@ -3,6 +3,8 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Dokumentation
+- `LICENSE` (MIT) hinzugefügt, Lizenzhinweis im README.
 
 ## [1.1.1] - 2026-11-03
 ### Geändert
