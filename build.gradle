@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+version = mod_version
+group = mod_group_id
+base { archivesName = 'factory-ledger-analytics' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+    runs {
+        client { client(); systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id }
+        server { server(); programArgument '--nogui'; systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id }
+    }
+    mods { "${mod_id}" { sourceSet sourceSets.main } }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Third-party mods are referenced from ./libs (never redistributed; Factory Ledger is "All Rights Reserved").
+    compileOnly fileTree(dir: 'libs', include: ['factoryledger-*.jar', 'StorageDrawers-*.jar', 'create-*.jar'])
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var props = [
+        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+        neo_version: neo_version, neo_version_range: neo_version_range,
+        loader_version_range: loader_version_range, mod_id: mod_id, mod_name: mod_name,
+        mod_license: mod_license, mod_version: mod_version, mod_authors: mod_authors,
+        mod_description: mod_description
+    ]
+    inputs.properties props
+    filesMatching(['META-INF/neoforge.mods.toml']) { expand props }
+}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+tasks.named('test') { useJUnitPlatform() }
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

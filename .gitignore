@@ -9,3 +9,4 @@ out/
 libs/
 *.log
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
