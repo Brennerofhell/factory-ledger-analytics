@@ -17,8 +17,15 @@ label.chk { display:flex; align-items:center; gap:6px; padding:2px 0; cursor:poi
 label.chk i { width:10px; height:10px; border-radius:2px; display:inline-block; }
 .note { color:var(--muted); font-size:12px; }
 section { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px; }
-canvas { width:100%; height:auto; display:block; }
-#tip { position:absolute; pointer-events:none; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font-size:12px; display:none; white-space:pre; }
+canvas { display:block; border-radius:6px; }
+main > section { min-width:0; }
+#tip { position:absolute; pointer-events:none; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; display:none; min-width:170px; box-shadow:0 6px 24px rgba(0,0,0,.35); z-index:5; }
+#tip .tip-head { color:var(--muted); margin-bottom:6px; }
+#tip .tip-row { display:flex; align-items:center; gap:8px; padding:1px 0; }
+#tip .tip-row i { width:9px; height:9px; border-radius:50%; flex:none; }
+#tip .tip-row span { flex:1; }
+#tip .tip-row b { font-variant-numeric:tabular-nums; }
+#tip .tip-more { color:var(--muted); margin-top:4px; }
 #stats { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
 #stats th, #stats td { text-align:right; padding:4px 8px; border-top:1px solid var(--line); }
 #stats th:first-child, #stats td:first-child { text-align:left; }

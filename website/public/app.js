@@ -87,12 +87,33 @@
     return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * pow;
   }
 
+  let hoverT = null; // time under the mouse, null = no hover
+
+  // Crisp drawing on high-DPI screens: the canvas gets device pixels, all drawing code uses CSS pixels.
+  function fitCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = Math.max(320, canvas.parentElement.clientWidth - 16);
+    const cssH = Math.round(Math.max(340, Math.min(580, cssW * 0.45)));
+    const c = canvas._css;
+    if (!c || c[0] !== cssW || c[1] !== cssH || c[2] !== dpr) {
+      canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+      canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+      canvas._css = [cssW, cssH, dpr];
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [cssW, cssH];
+  }
+  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+  const colorOf = item => COLORS[items.indexOf(item) % COLORS.length];
+
   function draw() {
-    const W = canvas.width, H = canvas.height, L = 70, R = 16, T = 16, B = 34;
+    const [W, H] = fitCanvas();
+    const L = 64, R = 18, T = 14, B = 32;
     const css = getComputedStyle(document.body);
-    const text = css.getPropertyValue('--muted').trim() || '#888', line = css.getPropertyValue('--line').trim() || '#333';
+    const muted = css.getPropertyValue('--muted').trim() || '#888', line = css.getPropertyValue('--line').trim() || '#333';
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '14px system-ui, sans-serif';
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     if (!data) return;
     const key = $('metric').value;
     const series = data.series.filter(s => state.items.includes(s.item));
@@ -105,42 +126,101 @@
     }
     let min = 0, max = 0, any = false;
     for (const s of series) for (const v of s[key]) if (v != null) { min = Math.min(min, v); max = Math.max(max, v); any = true; }
-    if (!any) { ctx.fillStyle = text; ctx.fillText('Keine Daten im gewählten Zeitraum', L + 20, H / 2); return; }
-    // round axis values (1, 2, 5 x 10^n) and always include 0, so the zero line sits on a grid line
+    if (!any) {
+      ctx.fillStyle = muted; ctx.textAlign = 'center';
+      ctx.fillText('Keine Daten im gewählten Zeitraum', W / 2, H / 2);
+      ctx.textAlign = 'left';
+      canvas._geo = null; return;
+    }
+    // round axis values (1, 2, 5 x 10^n), always including 0 so the zero line sits on a grid line
     const step = niceStep((Math.max(max, 0) - Math.min(min, 0) || 1) / 4);
     min = Math.floor(Math.min(min, 0) / step) * step;
     max = Math.ceil(Math.max(max, 0) / step) * step;
     if (max === min) max = min + step;
     const x = t => L + (t - v0) / (v1 - v0) * (W - L - R);
     const y = v => T + (1 - (v - min) / (max - min)) * (H - T - B);
-    ctx.strokeStyle = line; ctx.fillStyle = text; ctx.lineWidth = 1;
+    const base = key === 'stock' ? y(min) : y(Math.max(min, Math.min(0, max)));
+
+    // horizontal grid (dashed) with right-aligned value labels
+    ctx.textAlign = 'right'; ctx.fillStyle = muted; ctx.lineWidth = 1; ctx.strokeStyle = line;
+    ctx.setLineDash([3, 5]);
     for (let v = min; v <= max + step / 2; v += step) {
-      const py = y(v);
+      const py = Math.round(y(v)) + 0.5;
       ctx.beginPath(); ctx.moveTo(L, py); ctx.lineTo(W - R, py); ctx.stroke();
-      ctx.fillText(fmt(Math.abs(v) < step / 1e6 ? 0 : v), 6, py + 4);
+      ctx.fillText(fmt(Math.abs(v) < step / 1e6 ? 0 : v), L - 10, py + 4);
     }
-    for (let i = 0; i <= 4; i++) {
-      const t = v0 + (v1 - v0) * i / 4;
-      const d = new Date(t * 1000);
-      const s = (v1 - v0) > 2 * 86400 ? d.toLocaleDateString('de', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' }) : d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
-      ctx.fillText(s, Math.min(x(t), W - 80), H - 10);
+    ctx.setLineDash([]);
+
+    // "not measured": hatched bands where no series has data between two points (never drawn as zero)
+    const times = [...new Set(series.flatMap(s => s.t.filter((_, i) => s[key][i] != null || s.stock[i] != null)))].sort((a, b) => a - b);
+    for (let i = 1; i < times.length; i++) {
+      if (times[i] - times[i - 1] > data.bucketSec * 3) {
+        const gx0 = Math.max(L, x(times[i - 1])), gx1 = Math.min(W - R, x(times[i]));
+        if (gx1 - gx0 < 2) continue;
+        ctx.save(); ctx.beginPath(); ctx.rect(gx0, T, gx1 - gx0, H - T - B); ctx.clip();
+        ctx.fillStyle = rgba('#ff6b6b', 0.06); ctx.fillRect(gx0, T, gx1 - gx0, H - T - B);
+        ctx.strokeStyle = rgba('#ff6b6b', 0.18); ctx.lineWidth = 1;
+        for (let d = -(H); d < gx1 - gx0; d += 9) { ctx.beginPath(); ctx.moveTo(gx0 + d, H - B); ctx.lineTo(gx0 + d + (H - T - B), T); ctx.stroke(); }
+        ctx.restore();
+        if (gx1 - gx0 > 90) { ctx.fillStyle = rgba('#ff6b6b', 0.75); ctx.textAlign = 'center'; ctx.fillText('nicht gemessen', (gx0 + gx1) / 2, T + 16); }
+      }
     }
+
+    // zero line
+    if (min < 0 && max > 0) { ctx.strokeStyle = muted; ctx.globalAlpha = 0.6; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, Math.round(y(0)) + 0.5); ctx.lineTo(W - R, Math.round(y(0)) + 0.5); ctx.stroke(); ctx.globalAlpha = 1; }
+
+    // series: soft area + line; a missing value or a gap of more than 3 buckets breaks the line
     series.forEach(s => {
-      const col = COLORS[items.indexOf(s.item) % COLORS.length];
-      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
-      let pen = false, prev = null;
+      const col = colorOf(s.item);
+      const segs = []; let cur = null, prev = null;
       s.t.forEach((t, i) => {
         const v = s[key][i];
-        // no value or a time gap bigger than 3 buckets = not measured: break the line, never draw it as 0
-        if (v == null || (prev !== null && t - prev > data.bucketSec * 3)) pen = false;
+        if (v == null || (prev !== null && t - prev > data.bucketSec * 3)) cur = null;
         if (v == null) { prev = t; return; }
-        pen ? ctx.lineTo(x(t), y(v)) : ctx.moveTo(x(t), y(v));
-        pen = true; prev = t;
+        if (!cur) { cur = []; segs.push(cur); }
+        cur.push([x(t), y(v)]); prev = t;
       });
-      ctx.stroke();
+      const grad = ctx.createLinearGradient(0, T, 0, H - B);
+      grad.addColorStop(0, rgba(col, 0.20)); grad.addColorStop(1, rgba(col, 0.01));
+      for (const seg of segs) {
+        if (seg.length === 1) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(seg[0][0], seg[0][1], 3, 0, 6.2832); ctx.fill(); continue; }
+        ctx.beginPath(); ctx.moveTo(seg[0][0], base); seg.forEach(p => ctx.lineTo(p[0], p[1])); ctx.lineTo(seg[seg.length - 1][0], base); ctx.closePath();
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.beginPath(); seg.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+        ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.stroke();
+      }
     });
-    if (min < 0 && max > 0) { ctx.strokeStyle = text; ctx.beginPath(); ctx.moveTo(L, y(0)); ctx.lineTo(W - R, y(0)); ctx.stroke(); }
-    canvas._geo = { L, R, W, H, min, max, key, series, v0, v1 };
+
+    // time axis with small ticks
+    ctx.fillStyle = muted; ctx.strokeStyle = line; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const t = v0 + (v1 - v0) * i / 4, d = new Date(t * 1000), px = x(t);
+      const hm = d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
+      const s = (v1 - v0) > 2 * 86400 ? d.toLocaleDateString('de', { day: '2-digit', month: '2-digit' }) + ' ' + hm : hm;
+      ctx.textAlign = i === 0 ? 'left' : i === 4 ? 'right' : 'center';
+      ctx.fillText(s, px, H - 10);
+      ctx.beginPath(); ctx.moveTo(Math.round(px) + 0.5, H - B); ctx.lineTo(Math.round(px) + 0.5, H - B + 4); ctx.stroke();
+    }
+    ctx.textAlign = 'left';
+
+    // hover: vertical line and a dot on every series at the nearest measured time
+    let snap = null;
+    if (hoverT !== null) {
+      let bd = Infinity;
+      for (const t of times) { const d = Math.abs(t - hoverT); if (d < bd) { bd = d; snap = t; } }
+      if (snap !== null && bd <= data.bucketSec * 2) {
+        const px = Math.round(x(snap)) + 0.5;
+        ctx.strokeStyle = muted; ctx.globalAlpha = 0.7; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(px, T); ctx.lineTo(px, H - B); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        for (const s of series) {
+          const i = s.t.indexOf(snap); if (i < 0 || s[key][i] == null) continue;
+          const col = colorOf(s.item);
+          ctx.fillStyle = css.getPropertyValue('--panel').trim() || '#1b1e27'; ctx.beginPath(); ctx.arc(x(snap), y(s[key][i]), 5, 0, 6.2832); ctx.fill();
+          ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x(snap), y(s[key][i]), 3.4, 0, 6.2832); ctx.fill();
+        }
+      } else snap = null;
+    }
+    canvas._geo = { L, R, T, B, W, H, v0, v1, key, series, snap };
   }
 
   function stats(s, key) {
@@ -178,22 +258,43 @@
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   };
 
-  canvas.addEventListener('mousemove', e => {
-    const g = canvas._geo; if (!g || !data) return;
-    const rect = canvas.getBoundingClientRect(), sx = canvas.width / rect.width;
-    const px = (e.clientX - rect.left) * sx;
-    const t = g.v0 + (px - g.L) / (g.W - g.L - g.R) * (g.v1 - g.v0);
-    if (t < g.v0 || t > g.v1) { tip.style.display = 'none'; return; }
-    const lines = [new Date(t * 1000).toLocaleString('de')];
+  // hover: crosshair + a tooltip with one colored row per item (built with DOM nodes, never innerHTML)
+  function showTip(e) {
+    const g = canvas._geo, rect = canvas.getBoundingClientRect();
+    if (!g || g.snap === null) { tip.style.display = 'none'; return; }
+    const rows = [];
     for (const s of g.series) {
-      let best = -1, bd = Infinity;
-      s.t.forEach((tt, i) => { const d = Math.abs(tt - t); if (d < bd) { bd = d; best = i; } });
-      if (best >= 0 && bd <= data.bucketSec * 2) lines.push(`${pretty(s.item)}: ${fmt(s[g.key][best])}`);
+      const i = s.t.indexOf(g.snap);
+      if (i >= 0 && s[g.key][i] != null) rows.push({ name: pretty(s.item), v: s[g.key][i], col: colorOf(s.item) });
     }
-    tip.textContent = lines.join('\n'); tip.style.display = 'block';
-    tip.style.left = Math.min(e.clientX - rect.left + 14, rect.width - 200) + 'px'; tip.style.top = (e.clientY - rect.top + 14) + 'px';
+    rows.sort((a, b) => b.v - a.v);
+    tip.textContent = '';
+    const head = document.createElement('div'); head.className = 'tip-head';
+    head.textContent = new Date(g.snap * 1000).toLocaleString('de');
+    tip.appendChild(head);
+    for (const r of rows.slice(0, 14)) {
+      const row = document.createElement('div'); row.className = 'tip-row';
+      const sw = document.createElement('i'); sw.style.background = r.col;
+      const n = document.createElement('span'); n.textContent = r.name;
+      const v = document.createElement('b'); v.textContent = fmt(r.v);
+      row.append(sw, n, v); tip.appendChild(row);
+    }
+    if (rows.length > 14) { const m = document.createElement('div'); m.className = 'tip-more'; m.textContent = `+ ${rows.length - 14} weitere`; tip.appendChild(m); }
+    tip.style.display = 'block';
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = (px + 16 + w > rect.width ? Math.max(0, px - 16 - w) : px + 16) + 'px';
+    tip.style.top = Math.max(0, Math.min(py + 12, rect.height - h - 4)) + 'px';
+  }
+  canvas.addEventListener('mousemove', e => {
+    const g = canvas._geo; if (!g) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    hoverT = (px < g.L || px > g.W - g.R) ? null : g.v0 + (px - g.L) / (g.W - g.L - g.R) * (g.v1 - g.v0);
+    draw(); showTip(e);
   });
-  canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  canvas.addEventListener('mouseleave', () => { hoverT = null; tip.style.display = 'none'; draw(); });
+  window.addEventListener('resize', () => draw());
 
   $('fit').checked = state.fit;
   $('fit').onchange = () => { state.fit = $('fit').checked; save(); draw(); };
