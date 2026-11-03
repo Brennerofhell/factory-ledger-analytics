@@ -53,8 +53,16 @@ public final class AnalyticsNetwork {
         } else {
             r = QueryService.query(point, FactoryLedgerAnalytics.MONITORING.recentSamples(), selected, p.from(), p.to(), p.maxBuckets(), now);
         }
+        List<List<TierDto>> ladders = new java.util.ArrayList<>();
+        for (String item : r.items()) {
+            List<TierDto> l = new java.util.ArrayList<>();
+            if (AnalyticsConfig.COMPACTING_MODE.get() == dev.flanalytics.config.CompactingMode.NORMALIZED) {
+                for (var t : FactoryLedgerAnalytics.MONITORING.ladderFor(item)) l.add(new TierDto(t.itemId(), t.perItem()));
+            }
+            ladders.add(l);
+        }
         return new HistoryResponsePayload(p.wantPoints(), metas, selected, r.live(), r.from(), r.to(),
-                AnalyticsConfig.COMPACTING_MODE.get().name(), r.items(), r.buckets());
+                AnalyticsConfig.COMPACTING_MODE.get().name(), r.items(), ladders, r.buckets());
     }
 
     private static void onSetMode(SetModePayload p, IPayloadContext ctx) {

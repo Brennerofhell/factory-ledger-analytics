@@ -47,6 +47,14 @@ public final class ChartModel {
         return new Series(items.get(itemIdx), t, v);
     }
 
+    /** Same series expressed in a larger unit (e.g. ingots instead of nuggets): every value divided by {@code div}. */
+    public static Series scaled(Series s, double div) {
+        if (div == 1.0 || div <= 0) return s;
+        double[] v = new double[s.v().length];
+        for (int i = 0; i < v.length; i++) v[i] = s.v()[i] / div;
+        return new Series(s.itemId(), s.t(), v);
+    }
+
     /** Running sum of the net change. Gaps add nothing. */
     public static Series cumulative(List<ChartBucket> buckets, List<String> items, int itemIdx) {
         double[] t = new double[buckets.size()], v = new double[buckets.size()];

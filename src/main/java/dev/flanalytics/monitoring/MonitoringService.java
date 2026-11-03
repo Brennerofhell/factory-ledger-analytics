@@ -67,6 +67,15 @@ public final class MonitoringService {
         return new ArrayList<>(recent);
     }
 
+    /** Display ladder (nugget/ingot/block...) for a chain base item; empty if unknown. Server thread only. */
+    public List<ChainNormalizer.Tier> ladderFor(String itemId) {
+        for (ChainNormalizer n : normalizers.values()) {
+            List<ChainNormalizer.Tier> l = n.ladder(itemId);
+            if (!l.isEmpty()) return l;
+        }
+        return List.of();
+    }
+
     /** Start a fresh baseline for every point (e.g. after a counting-mode change). */
     public void markAllGaps() {
         points.values().forEach(p -> p.tracker.markGap());

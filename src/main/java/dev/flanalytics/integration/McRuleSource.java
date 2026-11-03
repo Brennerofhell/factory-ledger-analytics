@@ -33,6 +33,30 @@ public final class McRuleSource implements ChainNormalizer.RuleSource {
         return null;
     }
 
+    @Override
+    public ChainNormalizer.Up upperOf(String itemId) {
+        ResourceLocation rl = ResourceLocation.tryParse(itemId);
+        if (rl == null || !BuiltInRegistries.ITEM.containsKey(rl)) return null;
+        ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(rl));
+        String upper = null;
+        int rate = 0;
+        CompTierRegistry.Record rec = CompTierRegistry.INSTANCE.findHigherTier(stack);
+        if (rec != null && rec.convRate > 0) {
+            upper = idOf(rec.upper);
+            rate = rec.convRate;
+        } else {
+            CompactingHelper.Result res = new CompactingHelper(level).findHigherTier(stack);
+            if (res != null && res.getStack() != null && !res.getStack().isEmpty()) {
+                upper = idOf(res.getStack());
+                rate = res.getSize();
+            }
+        }
+        if (upper == null || rate < 2) return null;
+        // trust only rules that are consistent in both directions
+        ChainNormalizer.Rule back = lowerOf(upper);
+        return back != null && back.lowerId().equals(itemId) && back.rate() == rate ? new ChainNormalizer.Up(upper, rate) : null;
+    }
+
     static String idOf(ItemStack s) {
         return BuiltInRegistries.ITEM.getKey(s.getItem()).toString();
     }

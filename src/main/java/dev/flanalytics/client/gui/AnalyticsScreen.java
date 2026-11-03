@@ -91,6 +91,13 @@ public class AnalyticsScreen extends Screen {
             addRenderableWidget(b);
             rx += 35;
         }
+        if (tab == Tab.OVERVIEW || tab == Tab.CHARTS || tab == Tab.STATISTICS) {
+            String[] names = {"smallest", "middle", "largest"};
+            addRenderableWidget(Button.builder(Component.literal("Unit: " + names[displayTier]), btn -> {
+                displayTier = (displayTier + 1) % 3;
+                rebuildWidgets();
+            }).bounds(rx + 10 + (tab == Tab.CHARTS ? 112 : 0), 28, 90, 14).build());
+        }
         if (tab == Tab.CHARTS) {
             int cx = rx + 10;
             addRenderableWidget(Button.builder(Component.literal(type.name()), btn -> {
@@ -136,6 +143,30 @@ public class AnalyticsScreen extends Screen {
         g.fill(0, 0, width, height, 0xE0101018);
     }
 
+    private int displayTier; // 0 = smallest unit (nuggets), 1 = next (ingots), 2 = largest (blocks)
+
+    private dev.flanalytics.network.TierDto tier(HistoryResponsePayload d, int i) {
+        if (i >= d.ladders().size() || d.ladders().get(i).isEmpty()) return null;
+        var l = d.ladders().get(i);
+        return l.get(Math.min(displayTier, l.size() - 1));
+    }
+
+    private double div(HistoryResponsePayload d, int i) {
+        var t = tier(d, i);
+        return t == null ? 1.0 : t.perItem();
+    }
+
+    private String label(HistoryResponsePayload d, int i) {
+        var t = tier(d, i);
+        return name(t == null ? d.items().get(i) : t.itemId());
+    }
+
+    private double[] divs(HistoryResponsePayload d) {
+        double[] a = new double[d.items().size()];
+        for (int i = 0; i < a.length; i++) a[i] = div(d, i);
+        return a;
+    }
+
     private String name(String id) {
         ResourceLocation rl = ResourceLocation.tryParse(id);
         if (rl == null || !BuiltInRegistries.ITEM.containsKey(rl)) return id;
@@ -170,11 +201,11 @@ public class AnalyticsScreen extends Screen {
     private void renderCharts(GuiGraphics g, HistoryResponsePayload d, int mx, int my) {
         int legendH = 14 * (1 + (d.items().size() - 1) / Math.max(1, (width - 24) / 150));
         chart.x = 12; chart.y = 68; chart.w = width - 24; chart.h = Math.max(60, height - 68 - legendH - 10);
-        chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, this::name);
+        chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
         int lx = 12, ly = chart.y + chart.h + 6;
         for (int i = 0; i < d.items().size(); i++) {
             String id = d.items().get(i);
-            String label = name(id);
+            String label = label(d, i);
             int wLabel = Math.min(140, font.width(label) + 24);
             if (lx + wLabel > width - 12) { lx = 12; ly += 14; }
             boolean off = hidden.contains(id);
@@ -184,7 +215,7 @@ public class AnalyticsScreen extends Screen {
             legendHits.add(new Object[]{lx, ly, lx + wLabel, ly + 12, id});
             lx += wLabel + 6;
         }
-        g.drawString(font, "Scroll = zoom, drag = pan, click legend = show/hide", width - 12 - font.width("Scroll = zoom, drag = pan, click legend = show/hide"), 46, 0xFF888888);
+        g.drawString(font, "Scroll = zoom, drag = pan, click legend = show/hide", 12, height - 11, 0xFF888888);
     }
 
     private void renderOverview(GuiGraphics g, HistoryResponsePayload d) {
@@ -197,14 +228,15 @@ public class AnalyticsScreen extends Screen {
             int row = y + (int) (i * 14 - scroll);
             if (row < 80 || row > height - 14) continue;
             String id = d.items().get(i);
-            icon(g, id, 12, row - 4);
-            long stock = lastStock(d, i);
+            icon(g, tier(d, i) == null ? id : tier(d, i).itemId(), 12, row - 4);
+            double dv = div(d, i);
+            double stock = lastStock(d, i) / dv;
             ChartModel.Stats in = ChartModel.stats(d.buckets(), i, Metric.IN, Unit.PER_MINUTE);
             ChartModel.Stats out = ChartModel.stats(d.buckets(), i, Metric.OUT, Unit.PER_MINUTE);
             ChartModel.Stats net = ChartModel.stats(d.buckets(), i, Metric.NET, Unit.PER_MINUTE);
-            String[] vals = {font.plainSubstrByWidth(name(id), 130), String.valueOf(stock), ChartModel.formatRate(in.avg()),
-                    ChartModel.formatRate(out.avg()), ChartModel.formatRate(net.avg()), ChartModel.formatRate(net.avg() * 60),
-                    ChartModel.formatRate(net.avg() * 1440), String.valueOf(net.totalIn() - net.totalOut())};
+            String[] vals = {font.plainSubstrByWidth(label(d, i), 130), ChartModel.formatRate(stock), ChartModel.formatRate(in.avg() / dv),
+                    ChartModel.formatRate(out.avg() / dv), ChartModel.formatRate(net.avg() / dv), ChartModel.formatRate(net.avg() * 60 / dv),
+                    ChartModel.formatRate(net.avg() * 1440 / dv), ChartModel.formatRate((net.totalIn() - net.totalOut()) / dv)};
             for (int k = 0; k < vals.length; k++) g.drawString(font, vals[k], cx[k], row, 0xFFEEEEEE);
         }
         g.drawString(font, "Values are changes of stored amounts (STOCK_DELTA), averaged over the visible range; gaps excluded.", 12, height - 12, 0xFF888888);
@@ -270,9 +302,11 @@ public class AnalyticsScreen extends Screen {
             int row = y + (int) (i * 14 - scroll);
             if (row < 80 || row > height - 14) continue;
             ChartModel.Stats s = ChartModel.stats(d.buckets(), i, metric, unit);
-            icon(g, d.items().get(i), 12, row - 4);
-            String[] v = {font.plainSubstrByWidth(name(d.items().get(i)), 130), ChartModel.formatRate(s.min()), ChartModel.formatRate(s.avg()),
-                    ChartModel.formatRate(s.max()), String.valueOf(s.totalIn()), String.valueOf(s.totalOut()), s.coveredMs() / 1000 + "s", s.gapMs() / 1000 + "s"};
+            double dv = div(d, i);
+            icon(g, tier(d, i) == null ? d.items().get(i) : tier(d, i).itemId(), 12, row - 4);
+            String[] v = {font.plainSubstrByWidth(label(d, i), 130), ChartModel.formatRate(s.min() / dv), ChartModel.formatRate(s.avg() / dv),
+                    ChartModel.formatRate(s.max() / dv), ChartModel.formatRate(s.totalIn() / dv), ChartModel.formatRate(s.totalOut() / dv),
+                    s.coveredMs() / 1000 + "s", s.gapMs() / 1000 + "s"};
             for (int k = 0; k < v.length; k++) g.drawString(font, v[k], cx[k], row, 0xFFEEEEEE);
         }
         g.drawString(font, "Metric: " + metric + " (change on the Charts tab)", 12, height - 12, 0xFF888888);

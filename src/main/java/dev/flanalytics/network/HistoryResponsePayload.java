@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Bounded server answer: at most 256 points, 48 items and 600 buckets. Decoding enforces the same limits. */
 public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, String selected, boolean live,
                                      long from, long to, String compactingMode, List<String> items,
-                                     List<ChartBucket> buckets) implements CustomPacketPayload {
+                                     List<List<TierDto>> ladders, List<ChartBucket> buckets) implements CustomPacketPayload {
     public static final Type<HistoryResponsePayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(FactoryLedgerAnalytics.MOD_ID, "history_response"));
     public static final StreamCodec<FriendlyByteBuf, HistoryResponsePayload> CODEC = StreamCodec.of(HistoryResponsePayload::write, HistoryResponsePayload::read);
@@ -30,6 +30,11 @@ public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, 
         buf.writeUtf(p.compactingMode, 32);
         buf.writeVarInt(p.items.size());
         for (String s : p.items) buf.writeUtf(s, 128);
+        for (int i = 0; i < p.items.size(); i++) {
+            List<TierDto> l = i < p.ladders.size() ? p.ladders.get(i) : List.of();
+            buf.writeVarInt(l.size());
+            for (TierDto t : l) { buf.writeUtf(t.itemId(), 128); buf.writeVarLong(t.perItem()); }
+        }
         buf.writeVarInt(p.buckets.size());
         for (ChartBucket b : p.buckets) {
             buf.writeLong(b.start()); buf.writeVarLong(b.width()); buf.writeVarLong(b.coveredMs()); buf.writeVarLong(b.gapMs());
@@ -55,6 +60,13 @@ public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, 
         int ni = bounded(buf.readVarInt(), QueryService.MAX_ITEMS);
         List<String> items = new ArrayList<>(ni);
         for (int i = 0; i < ni; i++) items.add(buf.readUtf(128));
+        List<List<TierDto>> ladders = new ArrayList<>(ni);
+        for (int i = 0; i < ni; i++) {
+            int nt = bounded(buf.readVarInt(), 4);
+            List<TierDto> l = new ArrayList<>(nt);
+            for (int k = 0; k < nt; k++) l.add(new TierDto(buf.readUtf(128), buf.readVarLong()));
+            ladders.add(l);
+        }
         int nb = bounded(buf.readVarInt(), QueryService.MAX_BUCKETS);
         List<ChartBucket> buckets = new ArrayList<>(nb);
         for (int i = 0; i < nb; i++) {
@@ -68,7 +80,7 @@ public record HistoryResponsePayload(boolean hasPoints, List<PointMeta> points, 
             }
             buckets.add(new ChartBucket(start, width, covered, gap, it, in, out, st));
         }
-        return new HistoryResponsePayload(hasPoints, points, selected, live, from, to, mode, items, buckets);
+        return new HistoryResponsePayload(hasPoints, points, selected, live, from, to, mode, items, ladders, buckets);
     }
 
     private static int bounded(int v, int max) {

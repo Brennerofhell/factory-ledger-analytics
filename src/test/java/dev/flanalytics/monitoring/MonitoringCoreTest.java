@@ -28,6 +28,31 @@ class MonitoringCoreTest {
     }
 
     @Test
+    void ladderOffersIngotsAndBlocksWithRealRates() {
+        ChainNormalizer n = new ChainNormalizer(new ChainNormalizer.RuleSource() {
+            public Rule lowerOf(String id) {
+                return switch (id) {
+                    case "m:iron_block" -> new Rule("m:iron_ingot", 9);
+                    case "m:iron_ingot" -> new Rule("m:iron_nugget", 9);
+                    default -> null;
+                };
+            }
+            public ChainNormalizer.Up upperOf(String id) {
+                return switch (id) {
+                    case "m:iron_nugget" -> new ChainNormalizer.Up("m:iron_ingot", 9);
+                    case "m:iron_ingot" -> new ChainNormalizer.Up("m:iron_block", 9);
+                    default -> null;
+                };
+            }
+        });
+        var l = n.ladder("m:iron_nugget");
+        assertEquals(List.of(new ChainNormalizer.Tier("m:iron_nugget", 1), new ChainNormalizer.Tier("m:iron_ingot", 9),
+                new ChainNormalizer.Tier("m:iron_block", 81)), l);
+        assertTrue(n.ladder("m:iron_ingot").isEmpty()); // not a chain base
+        assertTrue(n.ladder("m:unknown").isEmpty());
+    }
+
+    @Test
     void cyclesTerminate() {
         assertNotNull(norm.resolve("m:loop_a"));
     }

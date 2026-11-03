@@ -34,9 +34,7 @@ public final class ClientEvents {
             Minecraft mc = Minecraft.getInstance();
             while (OPEN.consumeClick()) {
                 if (mc.player == null || mc.screen != null) continue;
-                ClientHooks.openRequested = true; // screen opens once the server has answered (and allowed it)
-                long now = System.currentTimeMillis();
-                PacketDistributor.sendToServer(new HistoryRequestPayload("", now - 3_600_000L, now, 300, true));
+                ClientHooks.requestOpen(); // screen opens once the server has answered (and allowed it)
             }
         }
     }

@@ -33,7 +33,7 @@ public final class ChartWidget {
     }
 
     public void render(GuiGraphics g, Font font, HistoryResponsePayload d, Type type, Metric metric, Unit unit,
-                       Set<String> hidden, long vFrom, long vTo, int mx, int my, java.util.function.Function<String, String> names) {
+                       Set<String> hidden, long vFrom, long vTo, int mx, int my, double[] div, java.util.function.IntFunction<String> labels) {
         g.fill(x, y, x + w, y + h, COL_BG);
         List<ChartBucket> buckets = d.buckets();
         List<String> items = d.items();
@@ -45,14 +45,14 @@ public final class ChartWidget {
         if (type == Type.IN_OUT) {
             for (int i = 0; i < items.size(); i++) {
                 if (hidden.contains(items.get(i))) continue;
-                series.add(ChartModel.rates(buckets, items, i, Metric.IN, unit)); colors.add(0xFF55FF55);
-                series.add(ChartModel.rates(buckets, items, i, Metric.OUT, unit)); colors.add(0xFFFF5555);
+                series.add(ChartModel.scaled(ChartModel.rates(buckets, items, i, Metric.IN, unit), div[i])); colors.add(0xFF55FF55);
+                series.add(ChartModel.scaled(ChartModel.rates(buckets, items, i, Metric.OUT, unit), div[i])); colors.add(0xFFFF5555);
                 break; // in/out comparison is shown for the first visible item to stay readable
             }
         } else {
             for (int i = 0; i < items.size(); i++) {
                 if (hidden.contains(items.get(i))) continue;
-                series.add(type == Type.CUMULATIVE ? ChartModel.cumulative(buckets, items, i) : ChartModel.rates(buckets, items, i, metric, unit));
+                series.add(ChartModel.scaled(type == Type.CUMULATIVE ? ChartModel.cumulative(buckets, items, i) : ChartModel.rates(buckets, items, i, metric, unit), div[i]));
                 colors.add(color(i));
             }
         }
@@ -130,11 +130,11 @@ public final class ChartWidget {
         g.drawString(font, axis, x + 2, y - 10, 0xFFAAAAAA);
         if (buckets.isEmpty()) g.drawCenteredString(font, "No data for this range yet", left + pw / 2, top + ph / 2, 0xFFAAAAAA);
 
-        if (hover != null) tooltip(g, font, d, hover, metric, unit, hidden, mx, my, names);
+        if (hover != null) tooltip(g, font, d, hover, metric, unit, hidden, mx, my, div, labels);
     }
 
     private void tooltip(GuiGraphics g, Font font, HistoryResponsePayload d, ChartBucket b, Metric metric, Unit unit,
-                         Set<String> hidden, int mx, int my, java.util.function.Function<String, String> names) {
+                         Set<String> hidden, int mx, int my, double[] div, java.util.function.IntFunction<String> labels) {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(time(b.start(), 1) + (d.live() ? "" : " (" + (b.width() / 1000) + "s slot)")));
         if (b.coveredMs() <= 0) lines.add(Component.literal("No measurement (gap)").withStyle(s -> s.withColor(0xFF5555)));
@@ -142,10 +142,13 @@ public final class ChartWidget {
         for (int k = 0; k < b.item().length; k++) {
             String id = d.items().get(b.item()[k]);
             if (hidden.contains(id) || b.coveredMs() <= 0) continue;
+            int idx = b.item()[k];
+            double dv = div[idx];
             double f = (double) unit.ms / b.coveredMs();
-            double val = (metric == Metric.IN ? b.in()[k] : metric == Metric.OUT ? b.out()[k] : b.in()[k] - b.out()[k]) * f;
-            lines.add(Component.literal(names.apply(id) + ": " + ChartModel.formatRate(val) + unit.suffix
-                    + "  (+" + b.in()[k] + " / -" + b.out()[k] + ", stock " + b.stock()[k] + ")"));
+            double val = (metric == Metric.IN ? b.in()[k] : metric == Metric.OUT ? b.out()[k] : b.in()[k] - b.out()[k]) * f / dv;
+            lines.add(Component.literal(labels.apply(idx) + ": " + ChartModel.formatRate(val) + unit.suffix
+                    + "  (+" + ChartModel.formatRate(b.in()[k] / dv) + " / -" + ChartModel.formatRate(b.out()[k] / dv)
+                    + ", stock " + ChartModel.formatRate(b.stock()[k] / dv) + ")"));
             if (lines.size() > 12) break;
         }
         g.renderComponentTooltip(font, lines, mx, my);
