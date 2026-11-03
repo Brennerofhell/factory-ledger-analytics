@@ -82,17 +82,26 @@ public final class PointHistory {
             }
         }
         long oldest = now - retentionDays * DAY;
-        if (tiers[2].headMap(oldest, false).size() > 0) {
-            tiers[2].headMap(oldest, false).clear();
-            dirty = true;
+        for (TreeMap<Long, Bucket> tier : tiers) { // the retention is the maximum age of ANY stored data
+            if (!tier.headMap(oldest, false).isEmpty()) {
+                tier.headMap(oldest, false).clear();
+                dirty = true;
+            }
         }
     }
 
-    /** Drop the oldest ~10% of hourly buckets (used when the size budget is exceeded). */
+    /**
+     * Drop the oldest ~10% of the coarsest non-empty tier (used when the size budget is exceeded):
+     * hourly buckets first, then 10 min, then 1 min, so a young history can be trimmed too.
+     */
     public synchronized void trimOldest() {
-        int drop = Math.max(1, tiers[2].size() / 10);
-        for (int i = 0; i < drop && !tiers[2].isEmpty(); i++) tiers[2].pollFirstEntry();
-        dirty = true;
+        for (int t = 2; t >= 0; t--) {
+            if (tiers[t].isEmpty()) continue;
+            int drop = Math.max(1, tiers[t].size() / 10);
+            for (int i = 0; i < drop && !tiers[t].isEmpty(); i++) tiers[t].pollFirstEntry();
+            dirty = true;
+            return;
+        }
     }
 
     /** Read-only view of the three tiers (call only on snapshots / single-threaded contexts). */

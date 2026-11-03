@@ -3,6 +3,15 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+
+## [1.1.6] - 2026-11-03
+### Behoben (Code-Review)
+- #2 Compacting-Regeln werden bei `/reload` bzw. Datapack-Sync neu gelesen; beim Stoppen werden die Normalisierer (die das `ServerLevel` halten) freigegeben.
+- #4 Eine Historie-Datei, die eine **neuere** Mod-Version geschrieben hat, wird nie überschrieben: Neue Daten dieses Punktes bleiben nur im Speicher, eine Warnung steht im Log.
+- #5 Live-Daten (`recent`) werden nach Alter (6 Minuten) begrenzt statt nach fester Anzahl; Obergrenze 20.000 Messungen. Bei vielen Messpunkten decken Live-Ansicht und API jetzt wirklich die letzten Minuten ab.
+- #6 `retentionDays` gilt als Höchstalter für **alle** Stufen; das Größenlimit kürzt auch 10-Minuten- und 1-Minuten-Werte, wenn es noch keine Stundenwerte gibt.
+### Hinzugefügt
+- 2 Tests (Aufbewahrung über alle Stufen, Kürzen auf feinere Stufen).
 ### Hinzugefügt
 - `website/`: Empfänger und Dashboard für den Push der Mod (Node, ohne Abhängigkeiten, SQLite, Login, Diagramme mit Lücken statt Nullwerten), mit 6 Tests und README. Ende-zu-Ende mit dem echten Java-Code der Mod geprüft.
 

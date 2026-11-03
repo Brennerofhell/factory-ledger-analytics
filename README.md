@@ -10,7 +10,7 @@ NeoForge-Addon für **Create: Factory Ledger** (Minecraft 1.21.1, NeoForge 21.1.
 Langzeit-Historie, Diagramme, Offline-Aufzeichnung, Export und eine optionale Web-Schnittstelle.
 Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR ohne Mixins.
 
-**Aktuelle Version: 1.1.5** (siehe [CHANGELOG.md](CHANGELOG.md), Versionsschema in [docs/VERSIONING.md](docs/VERSIONING.md)).
+**Aktuelle Version: 1.1.6** (siehe [CHANGELOG.md](CHANGELOG.md), Versionsschema in [docs/VERSIONING.md](docs/VERSIONING.md)).
 
 ## Dokumentation
 | Dokument | Inhalt |
@@ -19,6 +19,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 | [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Aufbau, Datenfluss, Entscheidungen und deren Begründung |
 | [docs/KONFIGURATION.md](docs/KONFIGURATION.md) | Alle Config-Einträge |
 | [docs/API.md](docs/API.md) | Website-Schnittstelle (Push / HTTP) |
+| [website/README.md](website/README.md) | Fertiger Empfänger und Dashboard für die Website (Node, Docker, Caddy) |
 | [docs/ANALYSE.md](docs/ANALYSE.md) | Technischer Analysebericht zu Factory Ledger und Storage Drawers |
 | [docs/BEKANNTE-PROBLEME.md](docs/BEKANNTE-PROBLEME.md) | Offene Fehler und Grenzen (Ergebnis des Code-Reviews) |
 | [docs/VERSIONING.md](docs/VERSIONING.md) | Versionierung und Release-Ablauf |
@@ -32,7 +33,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 - **Mehrere Quellen in einem Diagramm** (bis zu 8, gleiche Items werden addiert) und **gemerkte Auswahl** über Neustarts.
 - **Compacting Drawers:** Modus `OFF` / `DEDUPLICATE` / `NORMALIZED` und Anzeigeeinheit (kleinste / mittlere / größte Stufe oder alle gleichzeitig, z. B. Nugget / Barren / Block) mit den echten Umrechnungsregeln aus Storage Drawers.
 - Export: `/flanalytics export <csv|json> [Stunden]`, Diagnose: `/flanalytics rules <item>`.
-- Optional: Push an deine Website oder lesender HTTP-Endpunkt ([docs/API.md](docs/API.md)).
+- Optional: Push an deine Website oder lesender HTTP-Endpunkt ([docs/API.md](docs/API.md)); ein fertiger Empfänger mit Dashboard liegt in [`website/`](website/README.md).
 
 ## Wichtige Einschränkungen
 - **Messwerte sind Bestandsänderungen (`STOCK_DELTA`), keine Brutto-Produktion.** Wird im selben Messintervall gleich viel ein- und ausgelagert, ist das unsichtbar.
@@ -52,7 +53,7 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 |---|---|
 | Kompiliert gegen | Minecraft 1.21.1, NeoForge 21.1.219, Factory Ledger JAR `factoryledger-1.5.0.jar` (Metadaten melden `1.0.0`), Storage Drawers 13.11.4 |
 | Create | **nicht** eingebunden/getestet (JAR fehlte) |
-| Gradle-Build + 41 Unit-Tests | grün (Java 21, Gradle 9.2.1) |
+| Gradle-Build + 43 Unit-Tests | grün (Java 21, Gradle 9.2.1) |
 | Im Spiel bestätigt | Mod lädt (Einzelspieler und Mehrspieler-Server), Taste `K`, Diagramm mit Live-Daten, Messung eines Compacting Drawers, Einheit Barren, mehrere Quellen in einem Diagramm |
 | **Nicht im Spiel getestet** | Mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle, Button im Ledger-Fenster (fehlte auf der Testinstanz, siehe Bekannte Probleme), gemerkte Auswahl über Neustart |
 

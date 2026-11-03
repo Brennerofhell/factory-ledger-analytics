@@ -145,4 +145,23 @@ class HistoryTest {
         assertTrue(q.size() <= 51);
         assertEquals(600, q.stream().mapToLong(b -> b.items.get("m:tuff")[0]).sum());
     }
+
+    @org.junit.jupiter.api.Test
+    void retentionAppliesToEveryTier() {
+        PointHistory p = new PointHistory(ID);
+        p.add(sample(T0, false, 5, 100));
+        p.add(sample(T0 + 20_000L, false, 5, 110));
+        // retention 1 day, 3 days later: nothing, not even the fine tiers, may survive
+        p.compact(T0 + 3 * 86_400_000L, 1);
+        org.junit.jupiter.api.Assertions.assertEquals(0, p.bucketCount());
+    }
+
+    @org.junit.jupiter.api.Test
+    void trimOldestFallsBackToFinerTiers() {
+        PointHistory p = new PointHistory(ID);
+        for (int i = 0; i < 30; i++) p.add(sample(T0 + i * 60_000L, false, 1, 10 + i)); // only 1 min buckets exist
+        int before = p.bucketCount();
+        p.trimOldest();
+        org.junit.jupiter.api.Assertions.assertTrue(p.bucketCount() < before);
+    }
 }

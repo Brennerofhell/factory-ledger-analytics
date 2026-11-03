@@ -31,6 +31,8 @@ public final class HistoryRepository {
     });
     private final Map<String, Long> sizes = new HashMap<>();
     private final AtomicLong totalBytes = new AtomicLong();
+    private final java.util.Set<String> locked = java.util.concurrent.ConcurrentHashMap.newKeySet(); // files of a newer version
+    private final java.util.Set<String> warnedLocked = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public HistoryRepository(Path dir, Consumer<String> warn) {
         this.dir = dir;
@@ -63,6 +65,7 @@ public final class HistoryRepository {
                 return HistoryCodec.decode(Files.readAllBytes(candidate));
             } catch (HistoryCodec.UnsupportedVersionException e) {
                 warn.accept(candidate.getFileName() + ": " + e.getMessage() + " (written by a newer version; left untouched, point ignored)");
+                locked.add(f.getFileName().toString()); // saveAsync refuses to write this point
                 return null; // never overwrite data we cannot read
             } catch (IOException e) {
                 warn.accept(candidate.getFileName() + " unreadable: " + e.getMessage());
@@ -81,6 +84,12 @@ public final class HistoryRepository {
 
     /** Takes a consistent snapshot now and writes it asynchronously. */
     public void saveAsync(PointHistory live) {
+        String file = fileName(live.id);
+        if (locked.contains(file)) {
+            if (warnedLocked.add(file)) warn.accept(file + " was written by a newer version of the mod; new data for this point is kept in memory only and NOT saved, so the newer file is not overwritten");
+            live.clearDirty();
+            return;
+        }
         PointHistory snap = live.snapshotForSave();
         live.clearDirty();
         writer.execute(() -> {

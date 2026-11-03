@@ -33,7 +33,8 @@ import net.neoforged.neoforge.items.IItemHandler;
  * linked inventories on a configurable interval. Works without players online as long as chunks tick.
  */
 public final class MonitoringService {
-    private static final int RECENT_LIMIT = 2048;
+    private static final int RECENT_LIMIT = 20_000; // hard cap; the real bound is the 6 minute age below
+    private static final long RECENT_MAX_AGE_MS = 6 * 60_000L;
 
     private static final class Point {
         final DeltaTracker tracker = new DeltaTracker();
@@ -56,6 +57,7 @@ public final class MonitoringService {
         NeoForge.EVENT_BUS.addListener(ledgers::onPlace);
         NeoForge.EVENT_BUS.addListener(this::onTick);
         NeoForge.EVENT_BUS.addListener(this::onStopping);
+        NeoForge.EVENT_BUS.addListener(this::onDatapackSync);
     }
 
     public void addSink(Consumer<MeasurementSample> sink) {
@@ -104,6 +106,14 @@ public final class MonitoringService {
     private void onStopping(ServerStoppingEvent e) {
         points.values().forEach(p -> p.tracker.markGap());
         ledgers.clear();
+        normalizers.clear(); // they hold the ServerLevel; a new world must not see the old one
+        loggedItems.clear();
+        anyLevel = new java.lang.ref.WeakReference<>(null);
+    }
+
+    /** Fires on /reload and when players join: recipes / compacting rules may have changed. Cheap to recompute. */
+    private void onDatapackSync(net.neoforged.neoforge.event.OnDatapackSyncEvent e) {
+        invalidateRules();
     }
 
     private void onTick(ServerTickEvent.Post e) {
@@ -171,7 +181,7 @@ public final class MonitoringService {
 
     private synchronized void publish(MeasurementSample s) {
         recent.addLast(s);
-        while (recent.size() > RECENT_LIMIT) recent.removeFirst();
+        while (recent.size() > RECENT_LIMIT || (!recent.isEmpty() && recent.peekFirst().wallMillis() < s.wallMillis() - RECENT_MAX_AGE_MS)) recent.removeFirst();
         for (Consumer<MeasurementSample> sink : sinks) sink.accept(s);
         if (AnalyticsConfig.DEBUG.get()) FactoryLedgerAnalytics.LOGGER.info("sample {} {}", s.pointId(), s.deltas());
     }

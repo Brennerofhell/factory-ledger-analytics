@@ -1,5 +1,7 @@
 # Website-Schnittstelle
 
+Ein fertiger Empfänger mit Dashboard liegt im Repo unter [`website/`](../website/README.md) (Node, ohne Abhängigkeiten, SQLite, Login). Er prüft die Signatur wie unten beschrieben, speichert Minutenwerte und zeigt sie als Diagramme. Die Mod-Seite (`PushHttp`) wurde gegen ihn getestet: richtiges Secret `204`, falsches `401`.
+
 Beides ist standardmäßig **aus**. Konfiguration in `config/factoryledgeranalytics-common.toml`.
 Die Daten sind Bestandsänderungen (`STOCK_DELTA`), keine Brutto-Produktion. Messlücken werden nicht mitgezählt (`gapsInWindow`).
 
