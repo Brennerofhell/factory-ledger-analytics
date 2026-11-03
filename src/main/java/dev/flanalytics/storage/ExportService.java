@@ -40,6 +40,18 @@ public final class ExportService {
 
     private void onCommands(RegisterCommandsEvent e) {
         e.getDispatcher().register(Commands.literal("flanalytics").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("rules")
+                        .then(Commands.argument("item", net.minecraft.commands.arguments.ResourceLocationArgument.id())
+                                .executes(c -> {
+                                    if (!net.neoforged.fml.ModList.get().isLoaded("storagedrawers")) {
+                                        c.getSource().sendFailure(Component.literal("Storage Drawers is not loaded."));
+                                        return 0;
+                                    }
+                                    String id = net.minecraft.commands.arguments.ResourceLocationArgument.getId(c, "item").toString();
+                                    String text = new dev.flanalytics.integration.McRuleSource(c.getSource().getLevel()).explain(id);
+                                    c.getSource().sendSuccess(() -> Component.literal(text), false);
+                                    return 1;
+                                })))
                 .then(Commands.literal("export")
                         .then(Commands.argument("format", StringArgumentType.word())
                                 .executes(c -> run(c.getSource(), StringArgumentType.getString(c, "format"), 24))
