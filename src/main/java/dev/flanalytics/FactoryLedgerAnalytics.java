@@ -29,6 +29,7 @@ public class FactoryLedgerAnalytics {
         modBus.addListener(dev.flanalytics.network.AnalyticsNetwork::register);
         MONITORING.register();
         HISTORY.register();
+        new dev.flanalytics.storage.ExportService().register();
         MONITORING.addSink(HISTORY::accept);
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> {
             api.start();

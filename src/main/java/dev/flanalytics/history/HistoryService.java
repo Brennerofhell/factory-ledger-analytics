@@ -75,6 +75,14 @@ public final class HistoryService {
         return new ArrayList<>(points.keySet());
     }
 
+    /** Consistent in-memory copies of all points (for export; the copies are safe to use on other threads). */
+    public List<PointHistory> snapshots() {
+        List<PointHistory> out = new ArrayList<>();
+        for (PointHistory p : points.values()) out.add(p.snapshotForSave());
+        out.sort(java.util.Comparator.comparing(p -> p.id));
+        return out;
+    }
+
     public List<dev.flanalytics.network.PointMeta> metas() {
         List<dev.flanalytics.network.PointMeta> out = new ArrayList<>();
         for (PointHistory p : points.values()) {
