@@ -3,6 +3,8 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Hinzugefügt
+- `website/`: Empfänger und Dashboard für den Push der Mod (Node, ohne Abhängigkeiten, SQLite, Login, Diagramme mit Lücken statt Nullwerten), mit 6 Tests und README. Ende-zu-Ende mit dem echten Java-Code der Mod geprüft.
 
 ## [1.1.5] - 2026-11-03
 ### Geändert

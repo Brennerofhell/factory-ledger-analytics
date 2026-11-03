@@ -1,0 +1,28 @@
+:root { --bg:#12141a; --panel:#1b1e27; --line:#2c3040; --text:#e6e8ee; --muted:#8a90a2; --accent:#f5a524; }
+@media (prefers-color-scheme: light) { :root { --bg:#f4f5f8; --panel:#ffffff; --line:#d9dce6; --text:#1d2030; --muted:#5f657a; --accent:#c77800; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui, sans-serif; }
+header { display:flex; align-items:center; gap:16px; padding:10px 16px; background:var(--panel); border-bottom:1px solid var(--line); }
+header h1 { font-size:16px; margin:0; flex:1; }
+header form { margin:0; }
+button, select { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer; font:inherit; }
+button:hover { border-color:var(--accent); }
+button.on { background:var(--accent); color:#111; border-color:var(--accent); }
+main { display:grid; grid-template-columns:280px 1fr; gap:16px; padding:16px; }
+aside { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; max-height:calc(100vh - 90px); overflow:auto; }
+aside h2 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:14px 0 6px; }
+aside h2:first-of-type { margin-top:4px; }
+#ranges { display:flex; flex-wrap:wrap; gap:4px; }
+label.chk { display:flex; align-items:center; gap:6px; padding:2px 0; cursor:pointer; }
+label.chk i { width:10px; height:10px; border-radius:2px; display:inline-block; }
+.note { color:var(--muted); font-size:12px; }
+section { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px; }
+canvas { width:100%; height:auto; display:block; }
+#tip { position:absolute; pointer-events:none; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font-size:12px; display:none; white-space:pre; }
+#status { color:var(--muted); font-size:12px; }
+body.login { display:grid; place-items:center; min-height:100vh; }
+body.login form { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:24px; width:min(340px,90vw); display:grid; gap:12px; }
+body.login h1 { font-size:18px; margin:0; }
+body.login input { width:100%; padding:8px; margin-top:4px; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:6px; }
+.err { color:#ff6b6b; margin:0; }
+@media (max-width:800px) { main { grid-template-columns:1fr; } aside { max-height:none; } }
