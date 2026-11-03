@@ -42,6 +42,7 @@ public class AnalyticsScreen extends Screen {
     private final Set<String> hidden = new HashSet<>();
     private long vFrom, vTo;
     private boolean follow = true;
+    private boolean panels = true; // sources + legend rows; hide for a bigger chart
     private long lastRequest;
     private boolean pointsKnown;
     private double scroll;
@@ -51,7 +52,30 @@ public class AnalyticsScreen extends Screen {
 
     public AnalyticsScreen() {
         super(Component.literal("Factory Ledger Analytics"));
+        dev.flanalytics.client.UiState.load();
+        range = dev.flanalytics.client.UiState.range;
+        selected = dev.flanalytics.client.UiState.selected;
+        for (String h : dev.flanalytics.client.UiState.hidden.split("\n")) if (!h.isEmpty()) hidden.add(h);
+        try { type = ChartWidget.Type.valueOf(dev.flanalytics.client.UiState.type); } catch (IllegalArgumentException ignored) { }
+        try { metric = Metric.valueOf(dev.flanalytics.client.UiState.metric); } catch (IllegalArgumentException ignored) { }
+        try { unit = Unit.valueOf(dev.flanalytics.client.UiState.unit); } catch (IllegalArgumentException ignored) { }
+        displayTier = dev.flanalytics.client.UiState.displayTier;
+        panels = dev.flanalytics.client.UiState.panels;
         setRange(range);
+    }
+
+    @Override
+    public void removed() {
+        dev.flanalytics.client.UiState.selected = selected;
+        dev.flanalytics.client.UiState.hidden = String.join("\n", hidden);
+        dev.flanalytics.client.UiState.range = range;
+        dev.flanalytics.client.UiState.type = type.name();
+        dev.flanalytics.client.UiState.metric = metric.name();
+        dev.flanalytics.client.UiState.unit = unit.name();
+        dev.flanalytics.client.UiState.displayTier = displayTier;
+        dev.flanalytics.client.UiState.panels = panels;
+        dev.flanalytics.client.UiState.save();
+        super.removed();
     }
 
     private void setRange(int i) {
@@ -65,18 +89,20 @@ public class AnalyticsScreen extends Screen {
 
     /** Tabs with a second control row (unit / chart type) push the content down. */
     private int shift() {
-        if (tab == Tab.CHARTS) return 16 + (knownPoints.isEmpty() ? 0 : 16 * sourceRows());
+        if (tab == Tab.CHARTS) return 16 + (!panels || knownPoints.isEmpty() ? 0 : 16 * sourceRows());
         return tab == Tab.OVERVIEW || tab == Tab.STATISTICS ? 16 : 0;
     }
 
     private List<PointMeta> knownPoints = List.of();
 
     private String sourceLabel(PointMeta m) {
+        String coords = m.x() + "," + m.y() + "," + m.z();
+        if (m.dimension().equals("minecraft:overworld")) return coords;
         String dim = m.dimension().contains(":") ? m.dimension().substring(m.dimension().indexOf(':') + 1) : m.dimension();
-        return dim + " " + m.x() + "," + m.y() + "," + m.z();
+        return dim + " " + coords;
     }
 
-    private int sourceChipWidth(PointMeta m) { return font.width(sourceLabel(m)) + 28; }
+    private int sourceChipWidth(PointMeta m) { return font.width(sourceLabel(m)) + 22; }
 
     private int sourceRows() {
         int rows = 1, x = 12 + font.width("Sources:") + 6;
@@ -90,7 +116,7 @@ public class AnalyticsScreen extends Screen {
 
     /** Clickable chips, one per measurement point: several can be active, their items share the chart. */
     private void renderSources(GuiGraphics g, int mx, int my) {
-        if (knownPoints.isEmpty()) return;
+        if (!panels || knownPoints.isEmpty()) return;
         int y = 62, x = 12;
         g.drawString(font, "Sources:", x, y + 4, 0xFFFFD27F);
         x += font.width("Sources:") + 6;
@@ -150,6 +176,10 @@ public class AnalyticsScreen extends Screen {
                 type = ChartWidget.Type.values()[(type.ordinal() + 1) % ChartWidget.Type.values().length];
                 rebuildWidgets();
             }).bounds(cx, 44, 70, 14).build());
+            addRenderableWidget(Button.builder(Component.literal("Panels: " + (panels ? "on" : "off")), btn -> {
+                panels = !panels;
+                rebuildWidgets();
+            }).bounds(cx + 112, 44, 72, 14).build());
             addRenderableWidget(Button.builder(Component.literal(metric.name()), btn -> {
                 metric = Metric.values()[(metric.ordinal() + 1) % Metric.values().length];
                 rebuildWidgets();
@@ -247,14 +277,14 @@ public class AnalyticsScreen extends Screen {
 
     private void renderCharts(GuiGraphics g, HistoryResponsePayload d0, int mx, int my) {
         final HistoryResponsePayload d = displayTier == 3 ? expandUnits(d0) : d0;
-        int legendH = 16 * (1 + (d.items().size() + 1) / Math.max(1, (width - 24) / 150));
-        chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(60, height - chart.y - legendH - 24);
+        int legendH = panels ? 16 * legendRows(d) : 0;
+        chart.x = 12; chart.y = 68 + shift(); chart.w = width - 24; chart.h = Math.max(80, height - chart.y - legendH - 24);
         chart.render(g, font, d, type, metric, unit, hidden, vFrom, vTo, mx, my, divs(d), i -> label(d, i));
         legendItems = d.items();
         renderSources(g, mx, my);
         int lx = 12, ly = chart.y + chart.h + 6;
         // "All" / "None" chips first, then one checkbox chip per item.
-        String[] bulk = {"All", "None"};
+        String[] bulk = panels ? new String[]{"All", "None"} : new String[0];
         for (String b : bulk) {
             int w = font.width(b) + 12;
             drawChip(g, lx, ly, w, mx, my, false);
@@ -262,10 +292,10 @@ public class AnalyticsScreen extends Screen {
             legendHits.add(new Object[]{lx, ly, lx + w, ly + 14, "*" + b});
             lx += w + 4;
         }
-        for (int i = 0; i < d.items().size(); i++) {
+        for (int i = 0; panels && i < d.items().size(); i++) {
             String id = d.items().get(i);
-            String label = font.plainSubstrByWidth(label(d, i), 126);
-            int wLabel = font.width(label) + 28;
+            String label = legendLabel(d, i);
+            int wLabel = font.width(label) + 22;
             if (lx + wLabel > width - 12) { lx = 12; ly += 16; }
             boolean off = hidden.contains(id);
             drawChip(g, lx, ly, wLabel, mx, my, !off);
@@ -327,6 +357,20 @@ public class AnalyticsScreen extends Screen {
     }
 
     private List<String> legendItems = List.of();
+
+    private String legendLabel(HistoryResponsePayload d, int i) {
+        return font.plainSubstrByWidth(label(d, i), 100);
+    }
+
+    private int legendRows(HistoryResponsePayload d) {
+        int rows = 1, x = 12 + (font.width("All") + 16) + (font.width("None") + 16);
+        for (int i = 0; i < d.items().size(); i++) {
+            int w = font.width(legendLabel(d, i)) + 22;
+            if (x + w > width - 12) { rows++; x = 12; }
+            x += w + 4;
+        }
+        return rows;
+    }
 
     private void drawChip(GuiGraphics g, int x, int y, int w, int mx, int my, boolean on) {
         boolean hover = mx >= x && mx <= x + w && my >= y && my <= y + 14;

@@ -3,6 +3,11 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+
+## [1.1.2] - 2026-11-03
+### Behoben
+- Auswahl (Quellen, ausgeblendete Items, Zeitbereich, Typ, Einheit) bleibt jetzt erhalten: nach Schließen des Fensters, Verlassen der Welt und Neustart (`config/factoryledgeranalytics-ui.properties`, nur Client).
+- Diagramm zu klein: Quellen- und Legendenchips sind kompakter (Overworld-Quellen ohne Dimensionsname), und der neue Knopf **Panels: on/off** blendet beide Zeilen für ein großes Diagramm aus. Mindesthöhe des Diagramms 80.
 ### Dokumentation
 - `LICENSE` (MIT) hinzugefügt, Lizenzhinweis im README.
 
