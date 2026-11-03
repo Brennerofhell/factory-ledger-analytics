@@ -4,6 +4,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 ### Website (`website/`)
+- Mehr Zeiträume: 5 min, 15 min, 30 min, 1 h, 2 h, 3 h, 6 h, 12 h, 24 h, 3 d, 7 d, 14 d, 30 d und **Alles** (alle gespeicherten Daten, höchstens 40 Tage).
 - Zeitachse: Option "Zeitachse auf Daten zuschneiden" (Standard an) schneidet den leeren Teil vor dem ersten Messwert ab, so dass junge Daten die ganze Breite nutzen. Neue Zeiträume 5 min und 15 min. Gleich benannte Items aus verschiedenen Mods erhalten den Namensraum in Klammern.
 - Erster echter Push von Minecraft empfangen (8 Quellen); Dashboard zeigt echte Daten.
 - Dashboard-Statuszeile wird rot, wenn länger als 5 Minuten kein Push ankam (bzw. noch nie einer).

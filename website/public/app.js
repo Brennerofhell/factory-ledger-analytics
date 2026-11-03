@@ -2,7 +2,7 @@
 (() => {
   const base = document.body.dataset.base;
   const COLORS = ['#f5a524', '#4cc9f0', '#80ed99', '#f72585', '#b794f4', '#ffd166', '#06d6a0', '#ef476f', '#8ecae6', '#c0c0c0'];
-  const RANGES = [['5 min', 300], ['15 min', 900], ['1 h', 3600], ['6 h', 6 * 3600], ['24 h', 86400], ['7 d', 7 * 86400], ['30 d', 30 * 86400]];
+  const RANGES = [['5 min', 300], ['15 min', 900], ['30 min', 1800], ['1 h', 3600], ['2 h', 7200], ['3 h', 10800], ['6 h', 6 * 3600], ['12 h', 12 * 3600], ['24 h', 86400], ['3 d', 3 * 86400], ['7 d', 7 * 86400], ['14 d', 14 * 86400], ['30 d', 30 * 86400], ['Alles', 40 * 86400]];
   const state = load() || { range: 3600, points: [], items: [], metric: 'netPm' };
   if (state.fit === undefined) state.fit = true;
   let points = [], items = [], data = null;
