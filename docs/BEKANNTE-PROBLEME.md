@@ -17,7 +17,9 @@ Stand: Version 1.1.4. Quelle der Fehler: automatischer Code-Review am 2026-11-03
 | ~~10~~ ✔ 1.1.3 | `ClientHooks` | `openRequested` bleibt gesetzt, wenn der Server ablehnt | Keine Rückmeldung bei fehlender Berechtigung; Fenster kann später unerwartet aufgehen |
 
 ## Offen / ungeklärt
-- **Anzeigeeinheit Barren/Block:** Zeigt die Oberfläche nur Nuggets, liefert die Regel "nach oben" vermutlich keine übereinstimmende Stufe. Fehlersuche mit `/flanalytics rules minecraft:iron_nugget` (und `…iron_ingot`, `…iron_block`).
+- **Anzeigeeinheit Barren/Block:** Im Spiel bestätigt (Eisen: `Unit: middle` zeigt Iron Ingot). Der frühere Eindruck „nur Nuggets“ lag am abgeschnittenen `Unit`-Knopf (behoben in 1.0.3). Für andere Ketten gilt weiter: Liefert Storage Drawers keine übereinstimmende Stufe, bleibt es bei der kleinsten Einheit; das Log nennt dann den Grund (`No larger unit found`).
+- **Button „Analytics“ im Factory-Ledger-Fenster:** Auf der Testinstanz erschien er nicht; Ursache ungeklärt, seit 1.1.4 robustere Erkennung und Log-Diagnose. `K` funktioniert unabhängig davon.
+- **Mehrere Messpunkte:** Nur im Spiel an einer Instanz mit mehreren Quellen gesehen, Live-Zusammenführung (Rundung auf das Messraster) nicht mit stark unterschiedlichen Intervallen getestet.
 - **Create-Förderbänder:** werden nicht gemessen (Create-JAR zum Kompilieren fehlte).
 - **Brutto-Produktion:** Inventar-Messungen sind Bestandsänderungen (`STOCK_DELTA`); gleichzeitiges Ein-/Auslagern im selben Intervall hebt sich auf.
 - **Nicht im Spiel getestet:** Dedicated Server/Mehrspieler, mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle.

@@ -3,6 +3,8 @@
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach [SemVer](https://semver.org/lang/de/) (siehe `docs/VERSIONING.md`).
 
 ## [Unreleased]
+### Dokumentation
+- Bedienung, Architektur, Konfiguration, README und Bekannte Probleme auf den Stand 1.1.4 gebracht (Quellenauswahl, Einheit „all“, Panels, gemerkte Auswahl, Fehlersuche).
 
 ## [1.1.4] - 2026-11-03
 ### Geändert

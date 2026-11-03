@@ -29,14 +29,15 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 - Speichert die Historie **dauerhaft** im Weltordner (`factoryledgeranalytics/`), asynchron, mit Prüfsumme und Backup.
 - Eigener Bildschirm (Taste `K` oder Button **Analytics** im Factory-Ledger-Fenster): Overview, Links, Charts, History, Statistics, Settings. Diagramme: Linie, Balken, Vergleich, kumuliert, Ein/Aus; Zoom, Verschieben, Tooltips, Items ein-/ausblenden.
 - **Messlücken** (Server aus, Chunk nicht geladen, Moduswechsel) sind rot markiert und werden nie als Produktion gezählt.
-- **Compacting Drawers:** Modus `OFF` / `DEDUPLICATE` / `NORMALIZED` und Anzeigeeinheit (kleinste / mittlere / größte Stufe, z. B. Nugget / Barren / Block) mit den echten Umrechnungsregeln aus Storage Drawers.
+- **Mehrere Quellen in einem Diagramm** (bis zu 8, gleiche Items werden addiert) und **gemerkte Auswahl** über Neustarts.
+- **Compacting Drawers:** Modus `OFF` / `DEDUPLICATE` / `NORMALIZED` und Anzeigeeinheit (kleinste / mittlere / größte Stufe oder alle gleichzeitig, z. B. Nugget / Barren / Block) mit den echten Umrechnungsregeln aus Storage Drawers.
 - Export: `/flanalytics export <csv|json> [Stunden]`, Diagnose: `/flanalytics rules <item>`.
 - Optional: Push an deine Website oder lesender HTTP-Endpunkt ([docs/API.md](docs/API.md)).
 
 ## Wichtige Einschränkungen
 - **Messwerte sind Bestandsänderungen (`STOCK_DELTA`), keine Brutto-Produktion.** Wird im selben Messintervall gleich viel ein- und ausgelagert, ist das unsichtbar.
 - **Förderband-Links** von Factory Ledger werden noch **nicht** gemessen (Create-JAR zum Kompilieren fehlte).
-- Compacting Drawers: Dass Factory Ledger sie dreifach zählt (Nugget/Barren/Block), ist per Spiel-Screenshot belegt. Die Anzeigeeinheit Barren/Block hängt von den gefundenen Regeln ab und wird noch geprüft (`/flanalytics rules`).
+- Compacting Drawers: Dass Factory Ledger sie dreifach zählt (Nugget/Barren/Block), ist per Spiel-Screenshot belegt. Die Anzeigeeinheit Barren/Block hängt von den Regeln aus Storage Drawers ab (Eisen im Spiel bestätigt, andere Ketten prüfen: `/flanalytics rules`).
 - Factory Ledger ist **All Rights Reserved**: Das Addon nutzt es nur als Kompilier-Abhängigkeit, liefert es nicht mit und verwendet keine Mixins.
 - Bekannte Fehler aus dem Code-Review: [docs/BEKANNTE-PROBLEME.md](docs/BEKANNTE-PROBLEME.md).
 
@@ -51,9 +52,9 @@ Factory Ledger wird weder ersetzt noch verändert; das Addon ist eine eigene JAR
 |---|---|
 | Kompiliert gegen | Minecraft 1.21.1, NeoForge 21.1.219, Factory Ledger JAR `factoryledger-1.5.0.jar` (Metadaten melden `1.0.0`), Storage Drawers 13.11.4 |
 | Create | **nicht** eingebunden/getestet (JAR fehlte) |
-| Gradle-Build + 33 Unit-Tests | grün (Java 21, Gradle 9.2.1) |
-| Im Spiel bestätigt (Einzelspieler) | Mod lädt, Taste `K`, Diagramm mit Live-Daten, Messung eines Compacting Drawers |
-| **Nicht im Spiel getestet** | Mehrspieler/Dedicated Server, mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle, Anzeigeeinheit Barren/Block |
+| Gradle-Build + 34 Unit-Tests | grün (Java 21, Gradle 9.2.1) |
+| Im Spiel bestätigt | Mod lädt (Einzelspieler und Mehrspieler-Server), Taste `K`, Diagramm mit Live-Daten, Messung eines Compacting Drawers, Einheit Barren, mehrere Quellen in einem Diagramm |
+| **Nicht im Spiel getestet** | Mehrere Dimensionen, Chunk-Unloading, Server-Neustart, Export, Website-Schnittstelle, Button im Ledger-Fenster (fehlte auf der Testinstanz, siehe Bekannte Probleme), gemerkte Auswahl über Neustart |
 
 Die Unit-Tests decken die reine Logik ab (Normalisierung, Delta/Lücken, Aggregation, Speicherformat inkl. Beschädigung und unbekannter Version, Abfragen, Diagramm-Mathematik, Export).
 
