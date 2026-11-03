@@ -97,4 +97,4 @@ Danach Minecraft-Server neu starten. Ein erfolgreicher Push schreibt nichts ins 
 ## Grenzen
 - Gemessen werden **Bestandsänderungen** (`STOCK_DELTA`), keine Brutto-Produktion. Förderbänder werden nicht gemessen.
 - Die Mod schickt nur die Werte der letzten 5 Minuten; die Langzeit-Historie baut der Empfänger selbst auf. Daten vor dem ersten Push gibt es dort nicht.
-- Das Dashboard wurde im Browser mit künstlichen Demo-Daten geprüft (`website/tools/seed-demo.js`): Diagramm, Quellen- und Item-Auswahl, Lücken, Tabelle. Mit **echten** Daten von Minecraft ist es noch nicht gelaufen.
+- Das Dashboard wurde im Browser mit künstlichen Demo-Daten geprüft (`website/tools/seed-demo.js`): Diagramm, Quellen- und Item-Auswahl, Lücken, Tabelle. Seit dem 3.11.2026 kommen auch **echte** Pushes von Minecraft an (8 Quellen); eine längere Beobachtung über Stunden und Server-Neustarts steht noch aus.

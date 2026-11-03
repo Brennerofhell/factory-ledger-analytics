@@ -2,8 +2,9 @@
 (() => {
   const base = document.body.dataset.base;
   const COLORS = ['#f5a524', '#4cc9f0', '#80ed99', '#f72585', '#b794f4', '#ffd166', '#06d6a0', '#ef476f', '#8ecae6', '#c0c0c0'];
-  const RANGES = [['1 h', 3600], ['6 h', 6 * 3600], ['24 h', 86400], ['7 d', 7 * 86400], ['30 d', 30 * 86400]];
+  const RANGES = [['5 min', 300], ['15 min', 900], ['1 h', 3600], ['6 h', 6 * 3600], ['24 h', 86400], ['7 d', 7 * 86400], ['30 d', 30 * 86400]];
   const state = load() || { range: 3600, points: [], items: [], metric: 'netPm' };
+  if (state.fit === undefined) state.fit = true;
   let points = [], items = [], data = null;
 
   const $ = id => document.getElementById(id);
@@ -18,7 +19,12 @@
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   }
-  const pretty = id => id.replace(/^[^:]+:/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const basePretty = id => id.replace(/^[^:]+:/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const pretty = id => {
+    const n = basePretty(id);
+    const clash = items.some(o => o !== id && basePretty(o) === n);
+    return clash ? `${n} (${id.split(':')[0]})` : n;
+  };
   const label = p => `${p.dimension.replace(/^minecraft:/, '')} ${p.x},${p.y},${p.z}`;
   const fmt = v => v == null ? '–' : Math.abs(v) >= 100 ? Math.round(v).toLocaleString('de') : (Math.round(v * 10) / 10).toLocaleString('de');
 
@@ -90,6 +96,13 @@
     if (!data) return;
     const key = $('metric').value;
     const series = data.series.filter(s => state.items.includes(s.item));
+    let v0 = data.from, v1 = data.to;
+    if (state.fit) { // cut the empty part off: start shortly before the first measured value
+      let tmin = Infinity;
+      for (const s of series) for (let i = 0; i < s.t.length; i++) if (s.stock[i] != null || s[key][i] != null) tmin = Math.min(tmin, s.t[i]);
+      if (tmin !== Infinity && tmin > v0) v0 = Math.max(v0, tmin - data.bucketSec * 2);
+      if (v1 - v0 < 180) v0 = v1 - 180;
+    }
     let min = 0, max = 0, any = false;
     for (const s of series) for (const v of s[key]) if (v != null) { min = Math.min(min, v); max = Math.max(max, v); any = true; }
     if (!any) { ctx.fillStyle = text; ctx.fillText('Keine Daten im gewählten Zeitraum', L + 20, H / 2); return; }
@@ -98,7 +111,7 @@
     min = Math.floor(Math.min(min, 0) / step) * step;
     max = Math.ceil(Math.max(max, 0) / step) * step;
     if (max === min) max = min + step;
-    const x = t => L + (t - data.from) / (data.to - data.from) * (W - L - R);
+    const x = t => L + (t - v0) / (v1 - v0) * (W - L - R);
     const y = v => T + (1 - (v - min) / (max - min)) * (H - T - B);
     ctx.strokeStyle = line; ctx.fillStyle = text; ctx.lineWidth = 1;
     for (let v = min; v <= max + step / 2; v += step) {
@@ -107,9 +120,9 @@
       ctx.fillText(fmt(Math.abs(v) < step / 1e6 ? 0 : v), 6, py + 4);
     }
     for (let i = 0; i <= 4; i++) {
-      const t = data.from + (data.to - data.from) * i / 4;
+      const t = v0 + (v1 - v0) * i / 4;
       const d = new Date(t * 1000);
-      const s = state.range > 2 * 86400 ? d.toLocaleDateString('de', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' }) : d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
+      const s = (v1 - v0) > 2 * 86400 ? d.toLocaleDateString('de', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' }) : d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
       ctx.fillText(s, Math.min(x(t), W - 80), H - 10);
     }
     series.forEach(s => {
@@ -127,7 +140,7 @@
       ctx.stroke();
     });
     if (min < 0 && max > 0) { ctx.strokeStyle = text; ctx.beginPath(); ctx.moveTo(L, y(0)); ctx.lineTo(W - R, y(0)); ctx.stroke(); }
-    canvas._geo = { L, R, W, H, min, max, key, series };
+    canvas._geo = { L, R, W, H, min, max, key, series, v0, v1 };
   }
 
   function stats(s, key) {
@@ -169,8 +182,8 @@
     const g = canvas._geo; if (!g || !data) return;
     const rect = canvas.getBoundingClientRect(), sx = canvas.width / rect.width;
     const px = (e.clientX - rect.left) * sx;
-    const t = data.from + (px - g.L) / (g.W - g.L - g.R) * (data.to - data.from);
-    if (t < data.from || t > data.to) { tip.style.display = 'none'; return; }
+    const t = g.v0 + (px - g.L) / (g.W - g.L - g.R) * (g.v1 - g.v0);
+    if (t < g.v0 || t > g.v1) { tip.style.display = 'none'; return; }
     const lines = [new Date(t * 1000).toLocaleString('de')];
     for (const s of g.series) {
       let best = -1, bd = Infinity;
@@ -182,6 +195,8 @@
   });
   canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
 
+  $('fit').checked = state.fit;
+  $('fit').onchange = () => { state.fit = $('fit').checked; save(); draw(); };
   $('metric').value = state.metric;
   $('metric').onchange = () => { state.metric = $('metric').value; save(); draw(); renderStats(); };
   renderRanges();
