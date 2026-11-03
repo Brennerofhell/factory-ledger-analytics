@@ -8,3 +8,4 @@ out/
 # Fremd-JARs der Originalmods nicht einchecken (Lizenz)
 libs/
 *.log
+*.jar
